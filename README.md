@@ -11,7 +11,7 @@ The xcpdftips package contains the following files:
 Documented source file that may be LaTeXed to get the 
 detailed description and/or coding documentation.
 
-May be docstripped with option `package,all' to get the 
+May be docstripped with option "package,all" to get the 
 `xcpdftips.sty` package file, or processed with xcpdftips.ins.  
 
 ### xcpdftips.ins  
