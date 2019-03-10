@@ -324,19 +324,19 @@ End of documentation driver file.
 
 \ExplSyntaxOn
 
-\NewDocumentCommand{ \XC@enumeratetips }
-{ > { \SplitList , } m }
-{
-  \global\undef\XC@tips
-  \tl_map_inline:nn {#1} 
-  {
-    \ifx\XC@tips\undefined
-      \global\def\XC@tips{}
-      \gappto{\XC@tips}{--~~\@nameuse{BR@r@##1\@extra@b@citeb}}
-    \else
-      \gappto{\XC@tips}{,\textCR--~~\@nameuse{BR@r@##1\@extra@b@citeb}}
-    \fi
-  }
+\NewDocumentCommand{ \XC@enumeratetips }%
+{ > { \SplitList , } m }%
+{%
+  \global\undef\XC@tips%
+  \tl_map_inline:nn {#1}% 
+  {%
+    \ifx\XC@tips\undefined%
+      \global\def\XC@tips{}%
+      \gappto{\XC@tips}{--~~\@nameuse{BR@r@##1\@extra@b@citeb}}%
+    \else%
+      \gappto{\XC@tips}{,\textCR--~~\@nameuse{BR@r@##1\@extra@b@citeb}}%
+    \fi%
+  }%
 }
 
 \ExplSyntaxOff
@@ -364,6 +364,7 @@ End of documentation driver file.
 %    \begin{macrocode}
 
 \newcommand\XC@@citetp{}
+
 \def\XC@@citetp[#1]{\@ifnextchar[{\XC@citex[#1]}{\XC@citex[][#1]}}
 
 %    \end{macrocode}
@@ -379,7 +380,7 @@ End of documentation driver file.
 \newcommand\XC@citex{}
 
 \def\XC@citex[#1][#2]#3{%
-  \XC@enumeratetips{#3}
+  \XC@enumeratetips{#3}%
   \pdftooltip{\XC@oldcite[#1][#2]{#3}}{\XC@tips}%
 }
 
