@@ -1,0 +1,32 @@
+\documentclass[11pt,a4paper]{article}
+\pdfoutput=1
+
+\usepackage[numbers,sort&compress]{natbib}
+
+\usepackage[colorlinks=true
+,urlcolor=blue,anchorcolor=blue,citecolor=blue,filecolor=blue
+,linkcolor=blue,menucolor=blue,pagecolor=blue,linktocpage=true
+,pdfa=true
+]{hyperref}
+
+\usepackage{../xcpdftips}
+\let\cite\xpdfcite
+
+\begin{document}
+
+\subsection*{Examples for \texttt{xcpdftips}}
+
+To test, hover with your mouse pointer over the brackets:
+
+\begin{itemize}
+  \item Test 1: \cite{Misner:1974qy}, \cite{Wigner:1939cj}, 
+  \cite{Weinberg:1995mt}
+  \item Test 2: \cite{Misner:1974qy,Wigner:1939cj,Weinberg:1995mt}
+  \item Test 3: \cite[post]{Misner:1974qy,Wigner:1939cj,Weinberg:1995mt}
+  \item Test 4: \cite[pre][post]{Misner:1974qy,Wigner:1939cj,Weinberg:1995mt}
+\end{itemize}
+
+\bibliographystyle{JHEP}
+\bibliography{test}
+
+\end{document}

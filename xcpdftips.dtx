@@ -1,0 +1,405 @@
+% \iffalse      THIS IS A META-COMMENT
+%<*dtx>
+\ProvidesFile
+%========================================================================
+                            {XCPDFTIPS.DTX}
+%========================================================================
+%</dtx>
+%% Copyright 2019 Mikica Kocic
+%
+% This program can be redistributed and/or modified under the terms
+% of the LaTeX Project Public License Distributed from CTAN
+% archives in directory macros/latex/base/lppl.txt; either
+% version 1 of the License, or any later version.
+%
+% This is a contributed file to the LaTeX2e system.
+% -------------------------------------------------
+%         This is a LaTeX package to do citations with PDF tooltips.
+% Installation:
+%    LaTeX this file: creates docstrip installation file xcpdftips.ins
+%                         AND the LaTeX documentation
+%    (La)TeX xcpdftips.ins: creates package file xcpdftips.sty, and optionally
+%                         the documentation driver xcpdftips.drv
+%    (xcpdftips.ins and xcpdftips.drv may be edited as needed)
+% Docstrip options available:
+%        package - to produce a (LaTeX2e) package .sty file
+%        driver  - to produce a driver file to print the documentation
+%--------------------------------------------------------------------------
+%
+%  *** Identify the package file:-
+%<package>
+%<package>\NeedsTeXFormat{LaTeX2e}
+%<package>
+%<package>\ProvidesPackage{xcpdftips}
+%<package>[2019/03/10 xcpdftips.sty v1.0 - Copyright 2019 by Mikica Kocic]
+%<package>
+%<package>\RequirePackage{bibentry}
+%<package>\RequirePackage{pdfcomment}
+%<package>\RequirePackage{xparse}
+%<package>\RequirePackage{etoolbox}
+%
+%  *** Identify the driver file:-
+%
+%<driver>\NeedsTeXFormat{LaTeX2e}
+%<driver>\ProvidesFile{xcpdftips.drv}
+%
+%  *** The DATE, VERSION, and other INFO
+%
+%\fi
+%\ProvidesFile{xcpdftips}[2019/03/10 1.0 (PWD)]
+% \changes{1.0}{2019 Mar 10}{Initial version}
+%
+% \CheckSum{55}
+% \CharacterTable
+%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%   Digits        \0\1\2\3\4\5\6\7\8\9
+%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%   Dollar        \$     Percent       \%     Ampersand     \&
+%   Acute accent  \'     Left paren    \(     Right paren   \)
+%   Asterisk      \*     Plus          \+     Comma         \,
+%   Minus         \-     Point         \.     Solidus       \/
+%   Colon         \:     Semicolon     \;     Less than     \<
+%   Equals        \=     Greater than  \>     Question mark \?
+%   Commercial at \@     Left bracket  \[     Backslash     \\
+%   Right bracket \]     Circumflex    \^     Underscore    \_
+%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%   Right brace   \}     Tilde         \~}
+%
+% \iffalse
+%<*install>
+%
+%^^A =============================================
+%^^A    Here is the docstrip installation file
+%^^A    It is written on first LaTeX run if it
+%^^A    does not already exist
+%^^A =============================================
+%
+\begin{filecontents*}{xcpdftips.ins}
+%
+% File: xcpdftips.ins
+%
+% Copyright 2019 Mikica Kocic
+%
+% This file can be redistributed and/or modified under the terms
+% of the LaTeX Project Public License Distributed from CTAN
+% archives in directory macros/latex/base/lppl.txt; either
+% version 1 of the License, or any later version.
+%
+% It is an installation file for extracting package and driver
+% files from the original source file. Simply process it under
+% TeX or LaTeX. It works with Docstrip versions before and after
+% December 1995.
+
+\def\batchfile{xcpdftips.ins}
+\input docstrip
+
+\preamble
+
+=============================================
+IMPORTANT NOTICE:
+
+This program can be redistributed and/or modified under the terms
+of the LaTeX Project Public License Distributed from CTAN
+archives in directory macros/latex/base/lppl.txt; either
+version 1 of the License, or any later version.
+
+This is a generated file.
+It may not be distributed without the original source file \inFileName.
+
+Full documentation can be obtained by LaTeXing that original file.
+Only a few abbreviated comments remain here to describe the usage.
+=============================================
+
+\endpreamble
+\postamble
+
+<<<<< End of generated file <<<<<<
+
+\endpostamble
+\keepsilent
+
+% Docstrip before Dec 95 does not have \generate syntax, nor
+%   \declarepreamble. Must redefine them. The \generateFile called
+%   for each output file individually.
+% Docstrip before Dec 96 cannot interprete multiline \if..\fi
+%   Thus for maximum compatibility, have only one-line conditionals
+
+\let\oldDS F\relax
+\expandafter\ifx\csname generate\endcsname\relax \let\oldDS T\relax\fi
+\if\oldDS T  \def\declarepreamble#1{\preamble}\fi
+\if\oldDS T  \def\declarepostamble#1{\postamble}\fi
+\if\oldDS T  \generateFile{xcpdftips.sty}{f}{\from{xcpdftips.dtx}{package}} \fi
+
+\declarepreamble\driver
+============================================
+This is the driver file to produce the LaTeX documentation
+from the original source file \inFileName.
+
+Make changes to it as needed. (Never change the file \inFileName!)
+============================================
+\endpreamble
+
+\declarepostamble\driverq
+
+End of documentation driver file.
+\endpostamble
+
+\ifx\oldDS T \generateFile{xcpdftips.drv}{f}{\from{xcpdftips.dtx}{driver}}\fi
+
+\ifx\oldDS T \let\askforoverwritefalse\relax\def\generate#1{}\fi
+
+\askforoverwritefalse
+\generate{\file{xcpdftips.sty}{\from{xcpdftips.dtx}{package}}
+          \file{xcpdftips.drv}{\usepreamble\driver\usepostamble\driverq
+                           \from{xcpdftips.dtx}{driver}}
+         }
+
+\obeyspaces
+\Msg{********************************************}%
+\Msg{* For documentation, process xcpdftips.dtx *}%
+\Msg{*    or the driver file      xcpdftips.drv *}%
+\Msg{********************************************}
+\end{filecontents*}
+%</install>
+%<*driver>
+\documentclass[a4paper]{ltxdoc}
+%<driver>%\documentclass[twoside]{ltxdoc}
+%<driver>%\documentclass[a4paper]{ltxdoc}
+%<driver>%\documentclass[twoside,a4paper]{ltxdoc}
+\raggedbottom
+
+ %** To include the detailed explanation of the coding, comment out
+ %**   the next line
+% \OnlyDescription
+
+ %** To produce a command index: add the following line for one run,
+ %**   then run  makeindex -s gind.ist xcpdftips
+ %**   and reprocess, with or without this line (much faster without)
+%<driver>% \EnableCrossrefs\CodelineIndex
+
+ %** To produce a change history: add the following line for one run,
+ %**   then run  makeindex -s gglo.ist -o xcpdftips.gls xcpdftips.glo
+ %**   and reprocess, with or without this line (faster without)
+%<driver>% \RecordChanges
+
+\DisableCrossrefs %May stay; zapped by \EnableCrossrefs
+\CodelineNumbered %May stay
+
+\begin{document}
+   \DocInput{xcpdftips.dtx}
+\end{document}
+%</driver>
+%\fi
+%
+% \DoNotIndex{\begin,\CodelineIndex,\CodelineNumbered,\def,\DisableCrossrefs}
+% \DoNotIndex{\DocInput,\documentclass,\EnableCrossrefs,\end,\GetFileInfo}
+% \DoNotIndex{\NeedsTeXFormat,\OnlyDescription,\RecordChanges,\usepackage}
+% \DoNotIndex{\ProvidesClass,\ProvidesPackage,\ProvidesFile,\RequirePackage}
+% \DoNotIndex{\filename,\fileversion,\filedate,\let}
+% \DoNotIndex{\@listctr,\@nameuse,\csname,\else,\endcsname,\expandafter}
+% \DoNotIndex{\gdef,\global,\if,\item,\newcommand,\nobibliography}
+% \DoNotIndex{\par,\providecommand,\relax,\renewcommand,\renewenvironment}
+% \DoNotIndex{\stepcounter,\usecounter,\nocite,\fi}
+% \DoNotIndex{\@fileswfalse,\@gobble,\@ifstar,\@unexpandable@protect}
+% \DoNotIndex{\AtBeginDocument,\AtEndDocument,\begingroup,\endgroup}
+% \DoNotIndex{\frenchspacing,\MessageBreak,\newif,\PackageWarningNoLine}
+% \DoNotIndex{\protect,\string,\xdef,\ifx,\texttt,\@biblabel,\bibitem}
+%
+% \setcounter{IndexColumns}{2}
+% \setlength{\IndexMin}{10cm}
+% \setcounter{StandardModuleDepth}{1}
+%
+% \GetFileInfo{xcpdftips}
+%
+% \title{\bfseries Citations with PDF tooltips}
+%
+% \author{Mikica Kocic}
+%
+% \date{This paper describes package \texttt{\filename}\\
+%       version \fileversion{} from \filedate
+%  }
+%
+% \maketitle
+%
+% \pagestyle{myheadings}
+% \markboth{M. Kocic}{PDF tooltips from natbib citations}
+%
+%^^A In order to keep all marginal notes on the one (left) side:
+%^^A (otherwise they switch sides disasterously with twoside option)
+% \makeatletter \@mparswitchfalse \makeatother
+%
+%\iffalse
+%<*package>
+%
+% PDF tooltips from natbib citations
+%
+%-----------------------------------------------------------
+% See documentation in the source .dtx file for more details.
+%</package>
+%\fi
+%
+% \section{Introduction}
+%
+% This package allows one to be able to do \texttt{natbib} citations
+% with PDF tooltips.
+%
+% \section{Invoking the Package}
+%
+% The macros in this package are included in the main document
+% with the |\usepackage| command of \LaTeXe,
+% \begin{quote}
+% |\documentclass[..]{...}|\\
+% |\usepackage{|\texttt{\filename}|}|
+% \end{quote}
+%
+% \section{Usage}
+%
+% \newcommand\btx{\textsc{Bib}\TeX}
+%
+% This package must be used with \btx{} and \texttt{natbib}, not with a 
+% hand-written \texttt{thebibliography} environment.
+% More precisely, there must be a \texttt{.bbl} file external to the \LaTeX\
+% file; whether this is written by hand or by \btx\ is unimportant.
+% \vspace{2ex}
+%
+% \DescribeMacro{\xpdfcite}
+% This is a replacement for \texttt{natbib}'s |\cite| macro. 
+% The usage is the same:
+%
+% \begin{quote}
+%      |\xpdfcite|\marg{key}
+% \end{quote}
+%
+% It is also possible to replace |\cite|:
+%
+% \begin{quote}
+%      |\usepackage{xpdfcite}|\\
+%      |\let\cite\xpdfcite|
+% \end{quote}
+%
+% \section{Caveats}
+%
+% The \texttt{\filename} package will work with \texttt{natbib} with its
+% native |\bibitem| format, and with standard \LaTeX. Nothing else can be
+% guaranteed.
+% It will also work with \texttt{url} package. 
+%
+% \StopEventually{\PrintIndex\PrintChanges}
+%
+% \section{Options with \texttt{docstrip}}
+%
+% The source \texttt{.dtx} file is meant to be processed with
+% \texttt{docstrip}, for which a number of options are available:
+%
+% \begin{description}
+%
+% \item[\ttfamily package] to produce a \texttt{.sty} package file with most
+%     comments removed;
+%
+% \item[\ttfamily driver] to produce a driver \texttt{.drv} file that will
+%     print out the documentation under \LaTeXe. The documentation cannot
+%     be printed under \LaTeX~2.09.
+%
+% \end{description}
+%
+% The source file \texttt{\filename.dtx} is itself a driver file and can
+% be processed directly by \LaTeXe.
+%
+% \section{The Coding}
+%
+% This section presents and explains the actual coding of the macros.
+% It is nested between |%<*package>| and |%</package>|, which
+% are indicators to \texttt{docstrip} that this coding belongs to the package
+% file.
+%
+% \begin{macro}{\XC@enumeratetips}
+%
+% The macro |\XC@enumeratetips| gets \texttt{bibentry} for each key from 
+% the list of citations. The output is stored into |\XC@tips|, which can
+% be directly used as a tooltip text in |\pdftooltip|.
+%
+%    \begin{macrocode}
+%<*package>
+
+\ExplSyntaxOn
+
+\NewDocumentCommand{ \XC@enumeratetips }
+{ > { \SplitList , } m }
+{
+  \global\undef\XC@tips
+  \tl_map_inline:nn {#1} 
+  {
+    \ifx\XC@tips\undefined
+      \global\def\XC@tips{}
+      \gappto{\XC@tips}{--~~\@nameuse{BR@r@##1\@extra@b@citeb}}
+    \else
+      \gappto{\XC@tips}{,\textCR--~~\@nameuse{BR@r@##1\@extra@b@citeb}}
+    \fi
+  }
+}
+
+\ExplSyntaxOff
+
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\XC@citetp}
+%
+% This macro is in fact |\xpdfcite|. \\
+% It is a wrapper for |\XC@@citetp| to handle variable number of arguments.
+%
+%    \begin{macrocode}
+
+\newcommand\XC@citetp{\@ifnextchar[{\XC@@citetp}{\XC@@citetp[]}}
+
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\XC@@citetp}
+%
+% This macro is called from |\xpdfcite|. \\
+% It is a wrapper for |\XC@citex| to handle variable number of arguments.
+%
+%    \begin{macrocode}
+
+\newcommand\XC@@citetp{}
+\def\XC@@citetp[#1]{\@ifnextchar[{\XC@citex[#1]}{\XC@citex[][#1]}}
+
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\XC@citex}
+%
+% This macro does the actual job.
+% It is an internal wrapper for the combined |\pdftooltip| and |\citep|. 
+%
+%    \begin{macrocode}
+
+\newcommand\XC@citex{}
+
+\def\XC@citex[#1][#2]#3{%
+  \XC@enumeratetips{#3}
+  \pdftooltip{\XC@oldcite[#1][#2]{#3}}{\XC@tips}%
+}
+
+\let\XC@oldcite\citep  % Save \citep (in the case if it becomes redefined)
+
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\xpdfcite}
+%
+% A wrapper for the combined |\pdftooltip| and |\citep|.\\
+% It has the same syntax as |\citep|.
+%
+%    \begin{macrocode}
+
+\let\xpdfcite\XC@citetp
+
+\AtBeginDocument{\nobibliography*} % Necessary to get bibentries.
+
+%    \end{macrocode}
+% \end{macro}
+%
+% \Finale
