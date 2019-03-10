@@ -1,9 +1,6 @@
-                                XCPDFTIPS Package
-Current Version: 1.0 from 2019/03/10
+#  xcpdftips 
 
-See list of changes below
-
-This is the natbib package for placing PDF tooltips from citatoins.
+This is a LaTeX package for natbib citations with PDF tooltips.
 
 Manifest        The xcpdftips package contains the following files:
 ~~~~~~~~        
@@ -34,11 +31,7 @@ Documentation   Run LaTeX on xcpdftips.dtx or xcpdftips.ltx. The latter may be
 
 For full details, print out the documentation in xcpdftips.dtx by LaTeXing it.
 
--------------------------------------------------------------------------
-List of changes
+## List of changes
 
-  V1.0: Initial release.
+  v1.0: Initial release.
 
--------------------------------------------------------------------------
-2019 Mar 10
-Mikica Kocic
