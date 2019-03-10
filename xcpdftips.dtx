@@ -265,16 +265,20 @@ End of documentation driver file.
 %
 % \DescribeMacro{\xpdfcite}
 % This is a replacement for \texttt{natbib}'s |\cite| macro. 
-% The usage is the same:
+% Usage is the same:
 %
 % \begin{quote}
-%      |\xpdfcite|\marg{key}
+%      |\xpdfcite|\marg{key(s)}
 % \end{quote}
 %
-% It is also possible to replace |\cite|:
+% \noindent Similarly to |\cite|, the command |\xpdfcite| may take one or two
+% optional arguments to add some text before and after the citation.
+% \vspace{2ex}
+%
+% \noindent It is also possible to replace |\cite|:
 %
 % \begin{quote}
-%      |\usepackage{xpdfcite}|\\
+%      |\usepackage{xcpdftips}| \\
 %      |\let\cite\xpdfcite|
 % \end{quote}
 %
