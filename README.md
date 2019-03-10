@@ -16,12 +16,11 @@ May be docstripped with option "package,all" to get the
 
 ### `xcpdftips.ins`  
  
-A docstrip batch job to extract `xcpdftips.sty`
-from the source file `xcpdftips.dtx`. 
-Simply TeX or LaTeX this file.
+A docstrip batch job to extract `xcpdftips.sty` from the source file 
+`xcpdftips.dtx`.  Simply TeX or LaTeX this file.
 
-This file is embedded in `xcpdftips.dtx`. If it is missing, 
-then LaTeXing `xcpdftips.dtx` will extract it.
+This file is embedded in `xcpdftips.dtx`. If it is missing, then 
+LaTeXing `xcpdftips.dtx` will extract it.
                   
 ## Generation
 
@@ -32,15 +31,31 @@ running LaTeX on `xcpdftips.dtx`.
 
 ## Documentation   
 
-Run LaTeX on `xcpdftips.dtx` or `xcpdftips.ltx`. The latter may be
-edited as needed to conform to local requirements (paper
-size, duplex or not, with or without entire coding).
-Alternatively, a `ltxdoc.cfg` file can contain local
-configurations.
+Run LaTeX on `xcpdftips.dtx` or `xcpdftips.ltx`. The latter may be edited 
+as needed to conform to local requirements (paper size, duplex or not, 
+with or without entire coding).  Alternatively, a `ltxdoc.cfg` file can 
+contain local configurations.
 
 For full details, print out the documentation in `xcpdftips.dtx` 
 by LaTeXing it.
 
 ## List of changes
 
-v1.0: Initial release
+v1.0 Initial release 2019/03/10
+
+## License
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+

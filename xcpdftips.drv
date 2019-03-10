@@ -11,7 +11,7 @@
 %% 
 %% Make changes to it as needed. (Never change the file xcpdftips.dtx!)
 %% ============================================
-%% Copyright 2019 Mikica Kocic
+%% Copyright (c) 2019 Mikica Kocic
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesFile{xcpdftips.drv}
 \documentclass[a4paper]{ltxdoc}

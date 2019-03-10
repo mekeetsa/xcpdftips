@@ -263,3 +263,5 @@ TSWLatexianTemp*
 
 # ctan pacakger
 ctan.cmd
+ctan.sh
+

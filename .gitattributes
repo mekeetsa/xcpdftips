@@ -6,9 +6,13 @@
 
 # Explicitly declare text files you want to always be normalized and converted
 # to native line endings on checkout.
-*.tex text
+*.tex text eol=lf
 *.lyx text
-*.md  text
+*.md  text eol=lf
+*.sh  text eol=lf
+*.dtx text eol=lf
+*.sty text eol=lf
+*.ins text eol=lf
 
 # Declare files that will always have CRLF line endings on checkout.
 #*.sln text eol=crlf
@@ -23,3 +27,4 @@
 *.bin binary
 *.dat binary
 *.pdf binary
+*.zip binary
