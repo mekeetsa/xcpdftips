@@ -34,12 +34,14 @@
 \NeedsTeXFormat{LaTeX2e}
 
 \ProvidesPackage{xcpdftips}
-[2019/03/10 xcpdftips.sty v1.0 - Copyright 2019 by Mikica Kocic]
+[2019/03/10 xcpdftips.sty v1.0 - (c) 2019 Mikica Kocic]
 
 \RequirePackage{bibentry}
 \RequirePackage{pdfcomment}
 \RequirePackage{xparse}
 \RequirePackage{etoolbox}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \ExplSyntaxOn
 
@@ -47,42 +49,88 @@
 { > { \SplitList , } m }%
 {%
   \global\undef\XC@tips%
+  \undef\XC@tipsPre%
   \tl_map_inline:nn {#1}%
   {%
     \ifx\XC@tips\undefined%
       \global\def\XC@tips{}%
-      \gappto{\XC@tips}{--~~\@nameuse{BR@r@##1\@extra@b@citeb}}%
+      \gappto{\XC@tips}{\@nameuse{BR@r@##1\@extra@b@citeb}}%
     \else%
-      \gappto{\XC@tips}{,\textCR--~~\@nameuse{BR@r@##1\@extra@b@citeb}}%
+      \def\XC@tipsPre{\textbullet\ \ }
+      \gappto{\XC@tips}{,\textCR\textbullet\ \ \@nameuse{BR@r@##1\@extra@b@citeb}}%
     \fi%
   }%
+  \ifx\XC@tipsPre\undefined\else%
+    \gpreto{\XC@tips}{\XC@tipsPre}%
+  \fi%
 }
 
 \ExplSyntaxOff
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\gdef\XC@opt@author{{}}
+\newcommand{\xcsetauthor}[1]{\gdef\XC@opt@author{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\gdef\XC@opt@markup{Underline}
+\newcommand{\xcsetmarkup}[1]{\gdef\XC@opt@markup{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\gdef\XC@opt@color{1 1 0}
+\newcommand{\xcsetcolor}[1]{\gdef\XC@opt@color{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\gdef\XC@opt@opacity{0}
+\newcommand{\xcsetopacity}[1]{\gdef\XC@opt@opacity{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newcommand\XC@citetp{\@ifnextchar[{\XC@@citetp}{\XC@@citetp[]}}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newcommand\XC@@citetp{}
 
 \def\XC@@citetp[#1]{\@ifnextchar[{\XC@citex[#1]}{\XC@citex[][#1]}}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newcommand\XC@citex{}
 
-\def\XC@citex[#1][#2]#3{%
-  \XC@enumeratetips{#3}%
-  \pdftooltip{\XC@oldcite[#1][#2]{#3}}{\XC@tips}%
-}
+\def\XC@citex[#1][#2]#3%
+  {%{\protect\NoHyper%
+    \ifx\tooltip\undefined%
+      \XC@enumeratetips{#3}%
+      \pdftooltip{\XC@oldcite[#1][#2]{#3}}{\XC@tips}%
+      \pdfmarkupcomment[%
+        author=\XC@opt@author,%
+        markup=\XC@opt@markup,%
+        color=\XC@opt@color,%
+        opacity=\XC@opt@opacity,%
+      ]{\vphantom{.}}{\XC@tips}%
+    \else%
+      \let\textCR\par%
+      \XC@enumeratetips{#3}%
+      \tooltip****{%
+        {\protect\NoHyper\XC@oldcite[#1][#2]{#3}\protect\endNoHyper}%
+      }{\parbox[t]{0.9\textwidth}{\normalsize\normalfont\XC@tips}}%
+    \fi%
+  }%\protect\endNoHyper}}
 
 \let\XC@oldcite\citep  % Save \citep (in the case if it becomes redefined)
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \let\xpdfcite\XC@citetp
+\robustify{\xpdfcite}
 
 \AtBeginDocument{\nobibliography*} % Necessary to get bibentries.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 
 %% <<<<< End of generated file <<<<<<
 %% 

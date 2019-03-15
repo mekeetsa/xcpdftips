@@ -39,7 +39,7 @@
 %<package>\NeedsTeXFormat{LaTeX2e}
 %<package>
 %<package>\ProvidesPackage{xcpdftips}
-%<package>[2019/03/10 xcpdftips.sty v1.0 - Copyright 2019 by Mikica Kocic]
+%<package>[2019/03/10 xcpdftips.sty v1.0 - (c) 2019 Mikica Kocic]
 %<package>
 %<package>\RequirePackage{bibentry}
 %<package>\RequirePackage{pdfcomment}
@@ -54,10 +54,11 @@
 %  *** The DATE, VERSION, and other INFO
 %
 %\fi
-%\ProvidesFile{xcpdftips}[2019/03/10 1.0 (PWD)]
+%\ProvidesFile{xcpdftips}[2019/03/10 1.0 (MK)]
 % \changes{1.0}{2019 Mar 10}{Initial version}
+% \changes{1.1}{2019 Mar 15}{Robusitified \\xpdfcite}
 %
-% \CheckSum{55}
+% \CheckSum{130}
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
 %   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
@@ -83,6 +84,7 @@
 %^^A    does not already exist
 %^^A =============================================
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{filecontents*}{xcpdftips.ins}
 %
 % File: xcpdftips.ins
@@ -210,6 +212,7 @@ End of documentation driver file.
 \DisableCrossrefs %May stay; zapped by \EnableCrossrefs
 \CodelineNumbered %May stay
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
    \DocInput{xcpdftips.dtx}
 \end{document}
@@ -304,7 +307,11 @@ End of documentation driver file.
 % \begin{quote}
 %      |\usepackage{xcpdftips}| \\
 %      |\let\cite\xpdfcite|
+%      |\robustify{\cite}|
 % \end{quote}
+%
+% The last command |\robustify{\cite}| is needed if you wish to use
+% |\cite|, for instance, in captions.
 %
 % \section{Caveats}
 %
@@ -320,6 +327,7 @@ End of documentation driver file.
 % The source \texttt{.dtx} file is meant to be processed with
 % \texttt{docstrip}, for which a number of options are available:
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \begin{description}
 %
 % \item[\ttfamily package] to produce a \texttt{.sty} package file with most
@@ -341,6 +349,7 @@ End of documentation driver file.
 % are indicators to \texttt{docstrip} that this coding belongs to the package
 % file.
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \begin{macro}{\XC@enumeratetips}
 %
 % The macro |\XC@enumeratetips| gets \texttt{bibentry} for each key from 
@@ -356,15 +365,20 @@ End of documentation driver file.
 { > { \SplitList , } m }%
 {%
   \global\undef\XC@tips%
-  \tl_map_inline:nn {#1}% 
+  \undef\XC@tipsPre%
+  \tl_map_inline:nn {#1}%
   {%
     \ifx\XC@tips\undefined%
       \global\def\XC@tips{}%
-      \gappto{\XC@tips}{--~~\@nameuse{BR@r@##1\@extra@b@citeb}}%
+      \gappto{\XC@tips}{\@nameuse{BR@r@##1\@extra@b@citeb}}%
     \else%
-      \gappto{\XC@tips}{,\textCR--~~\@nameuse{BR@r@##1\@extra@b@citeb}}%
+      \def\XC@tipsPre{\textbullet\ \ }
+      \gappto{\XC@tips}{,\textCR\textbullet\ \ \@nameuse{BR@r@##1\@extra@b@citeb}}%
     \fi%
   }%
+  \ifx\XC@tipsPre\undefined\else%
+    \gpreto{\XC@tips}{\XC@tipsPre}%
+  \fi%
 }
 
 \ExplSyntaxOff
@@ -372,6 +386,59 @@ End of documentation driver file.
 %    \end{macrocode}
 % \end{macro}
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{macro}{\xcsetauthor}
+%
+% This commands sets the author used for pdf comments (default: {}).
+%
+%    \begin{macrocode}
+
+\gdef\XC@opt@author{{}}
+\newcommand{\xcsetauthor}[1]{\gdef\XC@opt@author{#1}}
+
+%    \end{macrocode}
+% \end{macro}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{macro}{\xcsetmarkup}
+%
+% This commands sets the markup used for pdf comments (default: Underline).
+%
+%    \begin{macrocode}
+
+\gdef\XC@opt@markup{Underline}
+\newcommand{\xcsetmarkup}[1]{\gdef\XC@opt@markup{#1}}
+
+%    \end{macrocode}
+% \end{macro}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{macro}{\xcsetcolor}
+%
+% This commands sets the color used for pdf comments (default: yellow).
+%
+%    \begin{macrocode}
+
+\gdef\XC@opt@color{1 1 0}
+\newcommand{\xcsetcolor}[1]{\gdef\XC@opt@color{#1}}
+
+%    \end{macrocode}
+% \end{macro}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{macro}{\XC@opt@opacity}
+%
+% This commands sets the opacity used for pdf comments (default: 0).
+%
+%    \begin{macrocode}
+
+\gdef\XC@opt@opacity{0}
+\newcommand{\xcsetopacity}[1]{\gdef\XC@opt@opacity{#1}}
+
+%    \end{macrocode}
+% \end{macro}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \begin{macro}{\XC@citetp}
 %
 % This macro is in fact |\xpdfcite|. \\
@@ -384,6 +451,7 @@ End of documentation driver file.
 %    \end{macrocode}
 % \end{macro}
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \begin{macro}{\XC@@citetp}
 %
 % This macro is called from |\xpdfcite|. \\
@@ -398,25 +466,42 @@ End of documentation driver file.
 %    \end{macrocode}
 % \end{macro}
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \begin{macro}{\XC@citex}
 %
-% This macro does the actual job.
-% It is an internal wrapper for the combined |\pdftooltip| and |\citep|. 
+% This is an internal macro that does the job of |\xpdfcite|.
+% It combines |\citep| with |\pdftooltip| and |\pdfmarkupcomment|. 
 %
 %    \begin{macrocode}
 
 \newcommand\XC@citex{}
 
-\def\XC@citex[#1][#2]#3{%
-  \XC@enumeratetips{#3}%
-  \pdftooltip{\XC@oldcite[#1][#2]{#3}}{\XC@tips}%
-}
+\def\XC@citex[#1][#2]#3%
+  {%{\protect\NoHyper%
+    \ifx\tooltip\undefined%
+      \XC@enumeratetips{#3}%
+      \pdftooltip{\XC@oldcite[#1][#2]{#3}}{\XC@tips}%
+      \pdfmarkupcomment[%
+        author=\XC@opt@author,%
+        markup=\XC@opt@markup,%
+        color=\XC@opt@color,%
+        opacity=\XC@opt@opacity,%
+      ]{\vphantom{.}}{\XC@tips}%
+    \else%
+      \let\textCR\par%
+      \XC@enumeratetips{#3}%
+      \tooltip****{%
+        {\protect\NoHyper\XC@oldcite[#1][#2]{#3}\protect\endNoHyper}%
+      }{\parbox[t]{0.9\textwidth}{\normalsize\normalfont\XC@tips}}%
+    \fi%
+  }%\protect\endNoHyper}}
 
 \let\XC@oldcite\citep  % Save \citep (in the case if it becomes redefined)
 
 %    \end{macrocode}
 % \end{macro}
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \begin{macro}{\xpdfcite}
 %
 % A wrapper for the combined |\pdftooltip| and |\citep|.\\
@@ -425,10 +510,12 @@ End of documentation driver file.
 %    \begin{macrocode}
 
 \let\xpdfcite\XC@citetp
+\robustify{\xpdfcite}
 
 \AtBeginDocument{\nobibliography*} % Necessary to get bibentries.
 
 %    \end{macrocode}
 % \end{macro}
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \Finale
