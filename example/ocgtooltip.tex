@@ -1,6 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % ocgtooltip: A tooltip on a PDF layer (OCG), toggled on mouse-click
+%             OCG = Optional Content Groups
 %
 % v1.0 2019/03/15 Copyright (c) 2019 Mikica Kocic under GPLv3+
 %
@@ -51,8 +52,8 @@
 \newcounter{XC@tipn}
 \newlength{\XC@hGoal}
 \newlength{\XC@hShift}
-\newlength{\XC@hOffset} \setlength\XC@hOffset{0pt}
-\newlength{\XC@vOffset} \setlength\XC@vOffset{0.5ex}
+\newlength{\XC@hOffset} \setlength\XC@hOffset{-0.1em}
+\newlength{\XC@vOffset} \setlength\XC@vOffset{0.2ex}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -62,24 +63,21 @@
   m % tooltip text
 }{{%
   \leavevmode%
-  %
   % Put the tooltip box on the new PDF layer
   \stepcounter{XC@tipn}%
-  \ocgbase@new@ocg{XC.ocg.\theXC@tipn}{%
+  \ocgbase@new@ocg{XCiteTip.\theXC@tipn}{%
     /Print<</PrintState/OFF>> %
     /Export<</ExportState/OFF>> %
-  }{false}%
-  \xdef\XC@ocg{\ocgbase@last@ocg}%
-  %
+    /View<</ViewState/OFF>> %
+  }{invisible}%
+  \edef\XC@ocg{\ocgbase@last@ocg}%
   % Disable simultaneous visibility of multiple tooltips
   \ocgbase@add@ocg@to@radiobtn@grp{tool@tips}{\ocgbase@last@ocg}%
-  %
   % Emit the <link text> using \pbs_pdflink:nn
   \XC@pdfLink{%
     /Subtype/Link/Border[0 0 0]/A %
       <</S/SetOCGState/State [/Toggle \XC@ocg]>> %
   }{#1}%
-  %
   % Store the <tooltip text> as a savebox on the ocg
   \sbox\XC@tipText{%
     \ocgbase@oc@bdc{\XC@ocg}%
@@ -93,8 +91,8 @@
   \raisebox{%
     \heightof{#1} + \the\dp\XC@tipText + \XC@vOffset%
   }[0pt][0pt]{%
-    \makebox[0pt][l]{%
-      \setlength\XC@hGoal{\linegoal} \relax%
+    \makebox[0pt][l]{\relax%
+      \setlength\XC@hGoal{\linegoal}%
       \setlength\XC@hShift{\XC@hGoal - \linewidth}%
       \hspace{\dimexpr\XC@hShift + \XC@hOffset \relax}%
       \usebox{\XC@tipText}%

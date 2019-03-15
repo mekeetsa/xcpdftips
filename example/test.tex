@@ -9,7 +9,7 @@
 \usepackage[colorlinks=true
   ,urlcolor=blue,anchorcolor=blue,citecolor=blue,filecolor=blue
   ,linkcolor=blue,menucolor=blue,pagecolor=blue,linktocpage=true
-  ,pdfa=true
+  ,pdfpagemode={UseOC}
 ]{hyperref}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -26,7 +26,8 @@
 
 \begin{document}
 
-\subsection*{Examples for \texttt{xcpdftips}}
+\subsection*{\texttt{XCiteTips} examples
+\cite[using refs:][]{Misner:1974qy,Wigner:1939cj,Weinberg:1995mt}}
 
 To test, hover with your mouse pointer over the brackets:
 
@@ -36,6 +37,7 @@ To test, hover with your mouse pointer over the brackets:
   \item Test 2: \cite{Misner:1974qy,Wigner:1939cj,Weinberg:1995mt}
   \item Test 3: \cite[post]{Misner:1974qy,Wigner:1939cj,Weinberg:1995mt}
   \item Test 4: \cite[pre][post]{Misner:1974qy,Wigner:1939cj,Weinberg:1995mt}
+  \item Test 5: \cite[pre][]{Misner:1974qy,Weinberg:1995mt}
 \end{itemize}
 
 \noindent Some further tests:
@@ -46,7 +48,7 @@ title}
 \begin{figure}[H]
   This is inside the figure, \cite{Misner:1974qy} \bibentry{Misner:1974qy}
   \caption{This is inside the caption: \cite{Misner:1974qy} 
-  \bibentry{Misner:1974qy}, 
+  \bibentry{Wigner:1939cj}, 
   \cite{Misner:1974qy,Wigner:1939cj,Weinberg:1995mt}}
 \end{figure}
 
