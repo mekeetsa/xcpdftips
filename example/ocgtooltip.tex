@@ -2,7 +2,7 @@
 %
 % ocgtooltip: A tooltip on a PDF layer (OCG), toggled on mouse-click
 %
-% Copyright (c) 2019 Mikica Kocic under GPLv3+
+% v1.0 2019/03/15 Copyright (c) 2019 Mikica Kocic under GPLv3+
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -64,10 +64,10 @@
   \leavevmode%
   %
   % Put the tooltip box on the new PDF layer
-  \stepcounter{XC@tipn}
+  \stepcounter{XC@tipn}%
   \ocgbase@new@ocg{XC.ocg.\theXC@tipn}{%
-    /Print<</PrintState/OFF>>%
-    /Export<</ExportState/OFF>>%
+    /Print<</PrintState/OFF>> %
+    /Export<</ExportState/OFF>> %
   }{false}%
   \xdef\XC@ocg{\ocgbase@last@ocg}%
   %
@@ -77,7 +77,7 @@
   % Emit the <link text> using \pbs_pdflink:nn
   \XC@pdfLink{%
     /Subtype/Link/Border[0 0 0]/A %
-      <</S/SetOCGState/State [/Toggle \XC@ocg]>>
+      <</S/SetOCGState/State [/Toggle \XC@ocg]>> %
   }{#1}%
   %
   % Store the <tooltip text> as a savebox on the ocg
@@ -91,7 +91,7 @@
   }%
   % Emit the savebox
   \raisebox{%
-    \heightof{#1} + \the\dp\XC@tipText + \XC@vOffset %
+    \heightof{#1} + \the\dp\XC@tipText + \XC@vOffset%
   }[0pt][0pt]{%
     \makebox[0pt][l]{%
       \setlength\XC@hGoal{\linegoal} \relax%
