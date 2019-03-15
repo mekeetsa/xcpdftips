@@ -2,19 +2,28 @@
 %
 % ocgtooltip: A tooltip on a PDF layer (OCG), toggled on mouse-click
 %
-% Based on tooltips with LaTeX v. 2018/01/15 by Alexander Grahn
+% Copyright (c) 2019 Mikica Kocic under GPLv3+
+%
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <https://www.gnu.org/licenses/>.
+%
+% Credits: The code is based on "tooltips with LaTeX" by Alexander Grahn
 %
 % Warning: Requires pdfbase and ocgbase >= 2018/04/06
 %
-% Usage:
-%
-% ocgtooltip{<link text>}
-%           [<tooltip box color>]{<tooltip text>}
-%           [<x-offset>,<y-offset>]
-%
-% Default link color can be set with
-%
-%   \usepackage[linkcolor=<color>]{hyperref}
+% Usage:   ocgtooltip{<link text>}
+%                    [<tooltip box color>]{<tooltip text>}
+%                    [<x-offset>,<y-offset>]
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -38,9 +47,10 @@
 \ExplSyntaxOff
 
 \newsavebox{\XC@tipText}
+
+\newcounter{XC@tipn}
 \newlength{\XC@hGoal}
 \newlength{\XC@hShift}
-
 \newlength{\XC@hOffset} \setlength\XC@hOffset{0pt}
 \newlength{\XC@vOffset} \setlength\XC@vOffset{0.5ex}
 
@@ -53,34 +63,38 @@
 }{{%
   \leavevmode%
   %
-  % Put the tooltip box on a PDF layer (OCG)
-  \ocgbase@new@ocg{XC.ocg.tooltips}{%
+  % Put the tooltip box on the new PDF layer
+  \stepcounter{XC@tipn}
+  \ocgbase@new@ocg{XC.ocg.\theXC@tipn}{%
     /Print<</PrintState/OFF>>%
     /Export<</ExportState/OFF>>%
   }{false}%
   \xdef\XC@ocg{\ocgbase@last@ocg}%
   %
-  % Prevent simultaneous visibility of multiple non-draggable tooltips
+  % Disable simultaneous visibility of multiple tooltips
   \ocgbase@add@ocg@to@radiobtn@grp{tool@tips}{\ocgbase@last@ocg}%
   %
-  % Emit the link using \pbs_pdflink:nn
+  % Emit the <link text> using \pbs_pdflink:nn
   \XC@pdfLink{%
     /Subtype/Link/Border[0 0 0]/A %
       <</S/SetOCGState/State [/Toggle \XC@ocg]>>
   }{#1}%
   %
-  % Store the tooltip text as a savebox
+  % Store the <tooltip text> as a savebox on the ocg
   \sbox\XC@tipText{%
-    \ocgbase@oc@bdc{\XC@ocg}\ocgbase@open@stack@push{\XC@ocg}%
-    \fcolorbox{black}{#2}{#3}%
-    \ocgbase@oc@emc\ocgbase@open@stack@pop\XC@null%
+    \ocgbase@oc@bdc{\XC@ocg}%
+    \ocgbase@open@stack@push{\XC@ocg}%
+      \fcolorbox{black}{#2}{#3}%
+    \ocgbase@oc@emc%
+    \ocgbase@open@stack@pop%
+    \null%
   }%
   % Emit the savebox
   \raisebox{%
     \heightof{#1} + \the\dp\XC@tipText + \XC@vOffset %
   }[0pt][0pt]{%
     \makebox[0pt][l]{%
-      \setlength\XC@hGoal{\linegoal}\relax %
+      \setlength\XC@hGoal{\linegoal} \relax%
       \setlength\XC@hShift{\XC@hGoal - \linewidth}%
       \hspace{\dimexpr\XC@hShift + \XC@hOffset \relax}%
       \usebox{\XC@tipText}%
