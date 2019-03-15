@@ -1,0 +1,93 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% ocgtooltip: A tooltip on a PDF layer (OCG), toggled on mouse-click
+%
+% Based on tooltips with LaTeX v. 2018/01/15 by Alexander Grahn
+%
+% Warning: Requires pdfbase and ocgbase >= 2018/04/06
+%
+% Usage:
+%
+% ocgtooltip{<link text>}
+%           [<tooltip box color>]{<tooltip text>}
+%           [<x-offset>,<y-offset>]
+%
+% Default link color can be set with
+%
+%   \usepackage[linkcolor=<color>]{hyperref}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{pdfbase,ocgbase}[2018/04/06]
+\usepackage{xparse}
+\usepackage{calc,linegoal}
+\usepackage{xcolor}
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Patch hyperref (make the PDF annotations OCG-aware)
+
+\let\Hy@setpdfborderOrig\Hy@setpdfborder
+\def\Hy@setpdfborder{\ocgbase@insert@oc\Hy@setpdfborderOrig}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\ExplSyntaxOn
+\let\XC@pdfLink\pbs_pdflink:nn
+\ExplSyntaxOff
+
+\newsavebox{\XC@tipText}
+\newlength{\XC@hGoal}
+\newlength{\XC@hShift}
+
+\newlength{\XC@hOffset} \setlength\XC@hOffset{0pt}
+\newlength{\XC@vOffset} \setlength\XC@vOffset{0.5ex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\NewDocumentCommand{\ocgtooltip}{%
+  m % link text
+  O{yellow!5} % tooltip box color
+  m % tooltip text
+}{{%
+  \leavevmode%
+  %
+  % Put the tooltip box on a PDF layer (OCG)
+  \ocgbase@new@ocg{XC.ocg.tooltips}{%
+    /Print<</PrintState/OFF>>%
+    /Export<</ExportState/OFF>>%
+  }{false}%
+  \xdef\XC@ocg{\ocgbase@last@ocg}%
+  %
+  % Prevent simultaneous visibility of multiple non-draggable tooltips
+  \ocgbase@add@ocg@to@radiobtn@grp{tool@tips}{\ocgbase@last@ocg}%
+  %
+  % Emit the link using \pbs_pdflink:nn
+  \XC@pdfLink{%
+    /Subtype/Link/Border[0 0 0]/A %
+      <</S/SetOCGState/State [/Toggle \XC@ocg]>>
+  }{#1}%
+  %
+  % Store the tooltip text as a savebox
+  \sbox\XC@tipText{%
+    \ocgbase@oc@bdc{\XC@ocg}\ocgbase@open@stack@push{\XC@ocg}%
+    \fcolorbox{black}{#2}{#3}%
+    \ocgbase@oc@emc\ocgbase@open@stack@pop\XC@null%
+  }%
+  % Emit the savebox
+  \raisebox{%
+    \heightof{#1} + \the\dp\XC@tipText + \XC@vOffset %
+  }[0pt][0pt]{%
+    \makebox[0pt][l]{%
+      \setlength\XC@hGoal{\linegoal}\relax %
+      \setlength\XC@hShift{\XC@hGoal - \linewidth}%
+      \hspace{\dimexpr\XC@hShift + \XC@hOffset \relax}%
+      \usebox{\XC@tipText}%
+    }%
+  }%
+}}
+
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -478,7 +478,7 @@ End of documentation driver file.
 
 \def\XC@citex[#1][#2]#3%
   {%{\protect\NoHyper%
-    \ifx\tooltip\undefined%
+    \ifx\ocgtooltip\undefined%
       \XC@enumeratetips{#3}%
       \pdftooltip{\XC@oldcite[#1][#2]{#3}}{\XC@tips}%
       \pdfmarkupcomment[%
@@ -490,9 +490,9 @@ End of documentation driver file.
     \else%
       \let\textCR\par%
       \XC@enumeratetips{#3}%
-      \tooltip****{%
-        {\protect\NoHyper\XC@oldcite[#1][#2]{#3}\protect\endNoHyper}%
-      }{\parbox[t]{0.9\textwidth}{\normalsize\normalfont\XC@tips}}%
+      \ocgtooltip{%
+        {{\protect\NoHyper\XC@oldcite[#1][#2]{#3}\protect\endNoHyper}}%
+      }{\parbox[t]{\columnwidth}{\normalsize\normalfont\XC@tips}}%
     \fi%
   }%\protect\endNoHyper}}
 
