@@ -68,10 +68,11 @@
 \newsavebox{\XC@tipText}
 
 \newcounter{XC@tipn}
-\newlength{\XC@hGoal}
-\newlength{\XC@hShift}
+
 \newlength{\XC@hOffset} \setlength\XC@hOffset{-0.1em}
 \newlength{\XC@vOffset} \setlength\XC@vOffset{0.2ex}
+\newlength{\XC@hGoal}   \setlength\XC@hGoal{0ex}
+\newlength{\XC@hShift}  \setlength\XC@hShift{0ex}
 
 %\AtBeginShipout{}
 
@@ -85,9 +86,9 @@
     \fcolorbox{#1}{#2}%
       {\parbox[t]{\columnwidth}{\normalfont\small #3}}%
   \else%
-    \begin{tcolorbox}[colframe=#1,colback=#2,%
-      width=1.02\columnwidth,arc=2pt,%
-      boxsep=2pt,top=0ex,bottom=0ex,left=0.1em,right=0.1em%
+    \begin{tcolorbox}[colframe=#1, colback=#2,%
+        width=1.02\columnwidth, arc=2pt,%
+        boxsep=2pt, top=0ex, bottom=0ex, left=0.1em, right=0.1em%
       ]\normalfont\small #3\end{tcolorbox}%
   \fi%
 }
@@ -100,35 +101,35 @@
   m % tooltip text
 }{{%
   \leavevmode%
-  % Put the tooltip box on the new PDF layer
+  % Create a new PDF layer
   \stepcounter{XC@tipn}%
-  \ocgbase@new@ocg{xcite [\theXC@tipn]}{%
+  \ocgbase@new@ocg{xcite: \XC@keys}{%
     /Print<</PrintState/OFF>> %
     /Export<</ExportState/OFF>> %
     /View<</ViewState/OFF>> %
   }{invisible}%
-  \edef\XC@ocg{\ocgbase@last@ocg}%
-  % Insert the PDF layer into order hierarchy (shown in the 'Layers' tab)
+  \edef\XC@currentOcg{\ocgbase@last@ocg}%
+  % Insert the PDF layer into the order hierarchy (shown in the 'Layers' tab)
   \ocgbase@tree@node@begin%
-  \XC@ocg%
+  \XC@currentOcg%
   \ocgbase@tree@node@end%
-  % Disable simultaneous visibility of multiple tooltips
+  % Disable the simultaneous visibility of multiple tooltips
   \ocgbase@add@ocg@to@radiobtn@grp{tool@tips}{\ocgbase@last@ocg}%
   % Emit the <link text> using \pbs_pdflink:nn
   \XC@pdfLink{%
     /Subtype/Link/Border[0 0 0]/A %
-      <</S/SetOCGState/State [/Toggle \XC@ocg]>> %
+      <</S/SetOCGState/State [/Toggle \XC@currentOcg]>> %
   }{#1}%
-  % Store the <tooltip text> on the ocg as a savebox
+  % Create a savebox for the <tooltip text> on the PDF layer
   \sbox\XC@tipText{%
-    \ocgbase@oc@bdc{\XC@ocg}%
-    \ocgbase@open@stack@push{\XC@ocg}%
+    \ocgbase@oc@bdc{\XC@currentOcg}%
+    \ocgbase@open@stack@push{\XC@currentOcg}%
       \ocgtoolbox{black!50}{#2}{#3}%
     \ocgbase@oc@emc%
     \ocgbase@open@stack@pop%
     \null%
   }%
-  % Emit the savebox
+  % Emit the savebox (at this point we have dimensions to calc the offset)
   \raisebox{%
     \heightof{#1} + \the\dp\XC@tipText + \XC@vOffset%
   }[0pt][0pt]{%

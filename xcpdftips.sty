@@ -43,26 +43,31 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\newsavebox{\XC@keynum} % Temp box for getting key numbers using \citenum{}
+
 \ExplSyntaxOn
 
 \NewDocumentCommand{ \XC@enumeratetips }%
 { > { \SplitList , } m }%
 {%
   \global\undef\XC@tips%
-  \undef\XC@tipsPre%
+  \global\undef\XC@keys%
   \tl_map_inline:nn {#1}%
   {%
     \ifx\XC@tips\undefined%
+      \global\def\XC@keys{}%
+      \sbox\XC@keynum{\citenum{##1}}%
+      \expandafter\xdef\csname XC@k@##1\@extra@b@citeb\endcsname{\NAT@num}%
+      \xappto{\XC@keys}{\NAT@num}%
       \global\def\XC@tips{}%
-      \gappto{\XC@tips}{{\@nameuse{BR@r@##1\@extra@b@citeb}}}%
+      \gappto{\XC@tips}{[\textbf{\@nameuse{XC@k@##1\@extra@b@citeb}}]\ {\@nameuse{BR@r@##1\@extra@b@citeb}}}%
     \else%
-      \def\XC@tipsPre{\textbullet\ }
-      \gappto{\XC@tips}{,\textCR\textbullet\ {\@nameuse{BR@r@##1\@extra@b@citeb}}}%
+      \sbox\XC@keynum{\citenum{##1}}%
+      \expandafter\xdef\csname XC@k@##1\@extra@b@citeb\endcsname{\NAT@num}%
+      \xappto{\XC@keys}{,\NAT@num}%
+      \gappto{\XC@tips}{,\textCR[\textbf{\@nameuse{XC@k@##1\@extra@b@citeb}}]\ {\@nameuse{BR@r@##1\@extra@b@citeb}}}%
     \fi%
   }%
-  \ifx\XC@tipsPre\undefined\else%
-    \gpreto{\XC@tips}{\XC@tipsPre}%
-  \fi%
 }
 
 \ExplSyntaxOff

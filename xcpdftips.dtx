@@ -58,7 +58,8 @@
 % \changes{1.0}{2019 Mar 10}{Initial version}
 % \changes{1.1}{2019 Mar 15}{Robusitified \\xpdfcite}
 %
-% \CheckSum{124}
+% \CheckSum{149}
+%
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
 %   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
@@ -359,26 +360,31 @@ End of documentation driver file.
 %    \begin{macrocode}
 %<*package>
 
+\newsavebox{\XC@keynum} % Temp box for getting key numbers using \citenum{}
+
 \ExplSyntaxOn
 
 \NewDocumentCommand{ \XC@enumeratetips }%
 { > { \SplitList , } m }%
 {%
   \global\undef\XC@tips%
-  \undef\XC@tipsPre%
+  \global\undef\XC@keys%
   \tl_map_inline:nn {#1}%
   {%
     \ifx\XC@tips\undefined%
+      \global\def\XC@keys{}%
+      \sbox\XC@keynum{\citenum{##1}}%
+      \expandafter\xdef\csname XC@k@##1\@extra@b@citeb\endcsname{\NAT@num}%
+      \xappto{\XC@keys}{\NAT@num}%
       \global\def\XC@tips{}%
-      \gappto{\XC@tips}{{\@nameuse{BR@r@##1\@extra@b@citeb}}}%
+      \gappto{\XC@tips}{[\textbf{\@nameuse{XC@k@##1\@extra@b@citeb}}]\ {\@nameuse{BR@r@##1\@extra@b@citeb}}}%
     \else%
-      \def\XC@tipsPre{\textbullet\ }
-      \gappto{\XC@tips}{,\textCR\textbullet\ {\@nameuse{BR@r@##1\@extra@b@citeb}}}%
+      \sbox\XC@keynum{\citenum{##1}}%
+      \expandafter\xdef\csname XC@k@##1\@extra@b@citeb\endcsname{\NAT@num}%
+      \xappto{\XC@keys}{,\NAT@num}%
+      \gappto{\XC@tips}{,\textCR[\textbf{\@nameuse{XC@k@##1\@extra@b@citeb}}]\ {\@nameuse{BR@r@##1\@extra@b@citeb}}}%
     \fi%
   }%
-  \ifx\XC@tipsPre\undefined\else%
-    \gpreto{\XC@tips}{\XC@tipsPre}%
-  \fi%
 }
 
 \ExplSyntaxOff
