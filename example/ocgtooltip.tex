@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% ocgtooltip: A tooltip on a PDF layer (OCG), toggled on mouse-click
-%             OCG = Optional Content Groups
+% ocgtooltip: A tooltip on a PDF layer using OCG (Optional Content Groups)
+%             toggled by a mouse-click.
 %
 % v1.0 2019/03/15 Copyright (c) 2019 Mikica Kocic under GPLv3+
 %
@@ -22,18 +22,40 @@
 %
 % Warning: Requires pdfbase and ocgbase >= 2018/04/06
 %
-% Usage:   ocgtooltip{<link text>}
-%                    [<tooltip box color>]{<tooltip text>}
-%                    [<x-offset>,<y-offset>]
+% Usage: ocgtooltip{<link text>}[<tooltip box color>]{<tooltip text>}
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\usepackage{pdfbase,ocgbase}[2018/04/06]
+\usepackage{pdfbase,ocgbase}
 \usepackage{xparse}
+\usepackage{expl3}
 \usepackage{calc,linegoal}
 \usepackage{xcolor}
 
 \makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Check the required versions of pdfbase and ocgbase
+
+\ExplSyntaxOn
+
+\msg_set:nnnn{ocgtooltip}{support~outdated}{
+  Support~package~`#1'~too~old.
+}{
+  Get~an~up~to~date~version~of~`#1'.\\Aborting.
+}
+\@ifpackagelater{pdfbase}{2018/04/06}{}{
+  \msg_error:nnn{ocgtooltip}{support~outdated}{pdfbase.sty}
+  \tex_endinput:D
+}
+\@ifpackagelater{ocgbase}{2018/04/06}{}{
+  \msg_error:nnn{ocgtooltip}{support~outdated}{ocgbase.sty}
+  \tex_endinput:D
+}
+
+\let\XC@pdfLink\pbs_pdflink:nn  % Alias for the pdflink from pdfbase
+
+\ExplSyntaxOff
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Patch hyperref (make the PDF annotations OCG-aware)
@@ -42,10 +64,6 @@
 \def\Hy@setpdfborder{\ocgbase@insert@oc\Hy@setpdfborderOrig}%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\ExplSyntaxOn
-\let\XC@pdfLink\pbs_pdflink:nn
-\ExplSyntaxOff
 
 \newsavebox{\XC@tipText}
 

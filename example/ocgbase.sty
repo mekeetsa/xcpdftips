@@ -95,8 +95,8 @@
 \RequirePackage{expl3}
 \RequirePackage{pdfbase}
 
-\def\g@ocgbase@date@tl{2018/04/06}
-\def\g@ocgbase@version@tl{0.13}
+\def\g@ocgbase@date@tl{2018/06/07}
+\def\g@ocgbase@version@tl{0.14}
 
 \ProvidesExplPackage{ocgbase}{\g@ocgbase@date@tl}{\g@ocgbase@version@tl}
 {support package for ocgx2.sty}
@@ -172,7 +172,7 @@
 }
 
 %macro for inserting new OCG object
-\cs_new_nopar:Nn\ocgbase_new_ocg:nnn{
+\cs_new_protected_nopar:Nn\ocgbase_new_ocg:nnn{
   \pbs_pdfobj:nnn{}{dict}{
     /Type/OCG/Name~(#1)~\str_if_eq_x:nnF{#2}{}{/Usage<<#2>>}
   }
@@ -198,7 +198,7 @@
 
 %macro for starting OCG object (and nested children) insertion into Order
 %hierarchy (shown as tree structure in the viewers `Layers' tab
-\cs_new:Nn\ocgbase_tree_node_begin:n{ % #1: OCG obj
+\cs_new_protected:Nn\ocgbase_tree_node_begin:n{ % #1: OCG obj
   %get the parent node from stack
   \seq_get:NN\g_ocgbase_tree_nd_stack_seq\l__ocgbase_prnt_tl
   \tl_if_exist:cTF{g_ocgbase_nd_\l__ocgbase_prnt_tl _chld_tl}{
@@ -233,7 +233,7 @@
 }
 
 %macro that ends insertion of OCG and sub-OCGs into Order tree
-\cs_new:Nn\ocgbase_tree_node_end:{
+\cs_new_protected:Nn\ocgbase_tree_node_end:{
   \seq_get:NN\g_ocgbase_tree_nd_stack_seq\l_tempa_tl
   \seq_get:NN\g_ocgbase_tree_ocg_stack_seq\l_tempb_tl
   \str_if_eq_x:nnT{
@@ -246,7 +246,7 @@
   }
 }
 
-% helper macro; traverses siblings to find either
+% helper macro (recursive); traverses siblings to find either
 % the node which refers to the same OCG (arg #2 remains un-modified), or
 % the last sibling inserted (arg #2 is cleared);
 % the node id of the sibling found is returned in arg #1
@@ -263,6 +263,7 @@
 }
 
 \cs_new:Nn\ocgbase_build_order:Nn{
+  % (recursive macro)
   % #1: tl var to which the OCG order is written (output)
   % #2: starting node id (input; usually `1')
   \tl_set:Nx\l__ocgbase_cur_nd_tl{#2}
@@ -286,7 +287,7 @@
 
 %macro for appending an OCG object to the global `OFF' list
 %(initial non-visibility)
-\cs_new_nopar:Nn\ocgbase_add_to_off_list:n{
+\cs_new_protected_nopar:Nn\ocgbase_add_to_off_list:n{
   \seq_if_in:NxF\g_ocgbase_offocgs_seq{#1}{
     \seq_gput_right:Nx\g_ocgbase_offocgs_seq{#1}
   }
@@ -294,7 +295,7 @@
 
 %macro for removing an OCG object from global `OFF' list
 %(initial non-visibility)
-\cs_new_nopar:Nn\ocgbase_del_from_off_list:n{
+\cs_new_protected_nopar:Nn\ocgbase_del_from_off_list:n{
   \seq_if_in:NxT\g_ocgbase_offocgs_seq{#1}{
     \ocgbase_seq_gremove_all:Nx\g_ocgbase_offocgs_seq{#1}
   }
@@ -303,7 +304,7 @@
 \cs_generate_variant:Nn\ocgbase_seq_gremove_all:Nn{Nx}
 
 \seq_new:N\g_ocgbase_rbtn_groups_seq
-\cs_new_nopar:Nn\ocgbase_add_ocg_to_radiobtn_grp:nn{
+\cs_new_protected_nopar:Nn\ocgbase_add_ocg_to_radiobtn_grp:nn{
   % #1: rbtn group name,
   % #2: OCG obj ref
   \seq_if_exist:cF{g_ocgbase_rbtn_group_#1_seq}{
@@ -316,16 +317,16 @@
 }
 
 % OC-marked content
-\cs_new_nopar:Nn\ocgbase_oc_bdc:n{\pbs_pdfbdc:nn{/OC}{#1}}
-\cs_new_nopar:Nn\ocgbase_oc_emc:{\pbs_pdfemc:}
+\cs_new_protected_nopar:Nn\ocgbase_oc_bdc:n{\pbs_pdfbdc:nn{/OC}{#1}}
+\cs_new_protected_nopar:Nn\ocgbase_oc_emc:{\pbs_pdfemc:}
 
 %stack of PDF obj references of currently open OCGs
 \seq_new:N\g_ocgbase_open_stack_seq
 %push OCG to stack
-\cs_new_nopar:Nn\ocgbase_open_stack_push:n{
+\cs_new_protected_nopar:Nn\ocgbase_open_stack_push:n{
   \seq_gpush:Nx\g_ocgbase_open_stack_seq{#1}}
 %pop OCG from stack into tl
-\cs_new_nopar:Nn\ocgbase_open_stack_pop:N{
+\cs_new_protected_nopar:Nn\ocgbase_open_stack_pop:N{
     \seq_gpop:NN\g_ocgbase_open_stack_seq#1}
 
 %command that inserts /OC <<OCMD with currently open OCGs>> entry;
