@@ -73,6 +73,10 @@
 \newlength{\XC@hOffset} \setlength\XC@hOffset{-0.1em}
 \newlength{\XC@vOffset} \setlength\XC@vOffset{0.2ex}
 
+\global\def\test{}%
+
+%\AtBeginShipout{}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \NewDocumentCommand{\ocgtooltip}{%
@@ -83,12 +87,16 @@
   \leavevmode%
   % Put the tooltip box on the new PDF layer
   \stepcounter{XC@tipn}%
-  \ocgbase@new@ocg{XCiteTip.\theXC@tipn}{%
+  \ocgbase@new@ocg{xcite [\theXC@tipn]}{%
     /Print<</PrintState/OFF>> %
     /Export<</ExportState/OFF>> %
     /View<</ViewState/OFF>> %
   }{invisible}%
   \edef\XC@ocg{\ocgbase@last@ocg}%
+  % Insert the PDF layer into order hierarchy (shown in the 'Layers' tab)
+  \ocgbase@tree@node@begin%
+  \XC@ocg%
+  \ocgbase@tree@node@end%
   % Disable simultaneous visibility of multiple tooltips
   \ocgbase@add@ocg@to@radiobtn@grp{tool@tips}{\ocgbase@last@ocg}%
   % Emit the <link text> using \pbs_pdflink:nn
