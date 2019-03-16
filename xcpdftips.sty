@@ -54,10 +54,10 @@
   {%
     \ifx\XC@tips\undefined%
       \global\def\XC@tips{}%
-      \gappto{\XC@tips}{\@nameuse{BR@r@##1\@extra@b@citeb}}%
+      \gappto{\XC@tips}{{\@nameuse{BR@r@##1\@extra@b@citeb}}}%
     \else%
-      \def\XC@tipsPre{\textbullet\ \ }
-      \gappto{\XC@tips}{,\textCR\textbullet\ \ \@nameuse{BR@r@##1\@extra@b@citeb}}%
+      \def\XC@tipsPre{\textbullet\ }
+      \gappto{\XC@tips}{,\textCR\textbullet\ {\@nameuse{BR@r@##1\@extra@b@citeb}}}%
     \fi%
   }%
   \ifx\XC@tipsPre\undefined\else%
@@ -115,9 +115,9 @@
     \else%
       \let\textCR\par%
       \XC@enumeratetips{#3}%
-      \ocgtooltip{%
-        {{\protect\NoHyper\XC@oldcite[#1][#2]{#3}\protect\endNoHyper}}%
-      }{\parbox[t]{\columnwidth}{\normalfont\small\XC@tips}}%
+      \ocgtooltip%
+        {{{\protect\NoHyper\XC@oldcite[#1][#2]{#3}\protect\endNoHyper}}}%
+        {\XC@tips}%
     \fi%
   }%\protect\endNoHyper}}
 

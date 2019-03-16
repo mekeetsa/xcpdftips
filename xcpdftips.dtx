@@ -58,7 +58,7 @@
 % \changes{1.0}{2019 Mar 10}{Initial version}
 % \changes{1.1}{2019 Mar 15}{Robusitified \\xpdfcite}
 %
-% \CheckSum{130}
+% \CheckSum{124}
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
 %   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
@@ -370,10 +370,10 @@ End of documentation driver file.
   {%
     \ifx\XC@tips\undefined%
       \global\def\XC@tips{}%
-      \gappto{\XC@tips}{\@nameuse{BR@r@##1\@extra@b@citeb}}%
+      \gappto{\XC@tips}{{\@nameuse{BR@r@##1\@extra@b@citeb}}}%
     \else%
-      \def\XC@tipsPre{\textbullet\ \ }
-      \gappto{\XC@tips}{,\textCR\textbullet\ \ \@nameuse{BR@r@##1\@extra@b@citeb}}%
+      \def\XC@tipsPre{\textbullet\ }
+      \gappto{\XC@tips}{,\textCR\textbullet\ {\@nameuse{BR@r@##1\@extra@b@citeb}}}%
     \fi%
   }%
   \ifx\XC@tipsPre\undefined\else%
@@ -490,9 +490,9 @@ End of documentation driver file.
     \else%
       \let\textCR\par%
       \XC@enumeratetips{#3}%
-      \ocgtooltip{%
-        {{\protect\NoHyper\XC@oldcite[#1][#2]{#3}\protect\endNoHyper}}%
-      }{\parbox[t]{\columnwidth}{\normalfont\small\XC@tips}}%
+      \ocgtooltip%
+        {{{\protect\NoHyper\XC@oldcite[#1][#2]{#3}\protect\endNoHyper}}}%
+        {\XC@tips}%
     \fi%
   }%\protect\endNoHyper}}
 

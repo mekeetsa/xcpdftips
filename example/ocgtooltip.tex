@@ -73,9 +73,24 @@
 \newlength{\XC@hOffset} \setlength\XC@hOffset{-0.1em}
 \newlength{\XC@vOffset} \setlength\XC@vOffset{0.2ex}
 
-\global\def\test{}%
-
 %\AtBeginShipout{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Command for showing tooltips. The arguments are the same as for \fcolorbox.
+% Define \usetcolorbox to use tcolorbox instead of the default \fcolorbox.
+% Use renewcommand to redefine.
+
+\newcommand{\ocgtoolbox}[3]{%
+  \ifx\usetcolorbox\undefined%
+    \fcolorbox{#1}{#2}%
+      {\parbox[t]{\columnwidth}{\normalfont\small #3}}%
+  \else%
+    \begin{tcolorbox}[colframe=#1,colback=#2,%
+      width=1.02\columnwidth,arc=2pt,%
+      boxsep=2pt,top=0ex,bottom=0ex,left=0.1em,right=0.1em%
+      ]\normalfont\small #3\end{tcolorbox}%
+  \fi%
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -104,11 +119,11 @@
     /Subtype/Link/Border[0 0 0]/A %
       <</S/SetOCGState/State [/Toggle \XC@ocg]>> %
   }{#1}%
-  % Store the <tooltip text> as a savebox on the ocg
+  % Store the <tooltip text> on the ocg as a savebox
   \sbox\XC@tipText{%
     \ocgbase@oc@bdc{\XC@ocg}%
     \ocgbase@open@stack@push{\XC@ocg}%
-      \fcolorbox{black}{#2}{#3}%
+      \ocgtoolbox{black!50}{#2}{#3}%
     \ocgbase@oc@emc%
     \ocgbase@open@stack@pop%
     \null%
