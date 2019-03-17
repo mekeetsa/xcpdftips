@@ -56,9 +56,9 @@
 %\fi
 %\ProvidesFile{xcpdftips}[2019/03/18 1.1 (MK)]
 % \changes{1.0}{2019 Mar 10}{Initial version}
-% \changes{1.1}{2019 Mar 18}{Added OCG support}
+% \changes{1.1}{2019 Mar 18}{Added support for PDF OCG}
 %
-% \CheckSum{276}
+% \CheckSum{279}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -85,7 +85,7 @@
 %^^A    does not already exist
 %^^A =============================================
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{filecontents*}{xcpdftips.ins}
 %
 % File: xcpdftips.ins
@@ -213,7 +213,7 @@ End of documentation driver file.
 \DisableCrossrefs %May stay; zapped by \EnableCrossrefs
 \CodelineNumbered %May stay
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
    \DocInput{xcpdftips.dtx}
 \end{document}
@@ -281,13 +281,13 @@ End of documentation driver file.
 % |\usepackage{|\texttt{\filename}|}|
 % \end{quote}
 %
-% \noindent It is also possible to replace |\cite|:
+% \noindent To replace |natbib|'s |\cite|,
 %
 % \begin{quote}
 %      |\usepackage[redefcite]{xcpdftips}|
 % \end{quote}
 %
-% \noindent To put tooltips on the PDF layers (OCG):
+% \noindent To put tooltips on the PDF layers (OCG),
 %
 % \begin{quote}
 %      |\usepackage[redefcite,useocg]{xcpdftips}|
@@ -304,23 +304,26 @@ End of documentation driver file.
 % \vspace{2ex}
 %
 % \DescribeMacro{\xpdfcite}
-% This is a replacement for \texttt{natbib}'s |\cite| macro. 
-% Usage is the same:
-%
-% \begin{quote}
-%      |\xpdfcite|\marg{key(s)}
-% \end{quote}
+% \noindent A replacement for \texttt{natbib}'s |\cite| macro.\\~
 %
 % \noindent Similarly to |\cite|, the command |\xpdfcite| may take one or two
-% optional arguments to add some text before and after the citation.
-% \vspace{2ex}
+% optional arguments to add some text before and after the citation:
+%
+% \begin{quote}
+%      |\xpdfcite|\marg{key(s)}\\[0.2ex]
+%      |\xpdfcite[|\emph{post}|]|\marg{key(s)}\\[0.2ex]
+%      |\xpdfcite[|\emph{pre}|][|\emph{post}|]|\marg{key(s)}
+% \end{quote}
 %
 % \section{Caveats}
 %
-% The \texttt{\filename} package will work with \texttt{natbib} with its
-% native |\bibitem| format, and with standard \LaTeX. Nothing else can be
-% guaranteed.
-% It will also work with \texttt{url} package. 
+% The \texttt{\filename} package will work with |natbib| with its
+% native |\bibitem| format, and with standard \LaTeX.  
+% It will also work with |url| package. 
+%
+% The OCG support requires |ocgbase| and |pdfbase| versions $\ge$ 2018/04/06
+%
+% Nothing else can be guaranteed.
 %
 % \StopEventually{\PrintIndex\PrintChanges}
 %
@@ -329,7 +332,7 @@ End of documentation driver file.
 % The source \texttt{.dtx} file is meant to be processed with
 % \texttt{docstrip}, for which a number of options are available:
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \begin{description}
 %
 % \item[\ttfamily package] to produce a \texttt{.sty} package file with most
@@ -370,12 +373,45 @@ End of documentation driver file.
 %    \end{macrocode}
 % \end{macro}
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{macro}{\XCP@tooltipbox}
+%
+% Command for creating a tooltip box on the OCG layer. 
+% The arguments are the same as for |\fcolorbox|.
+%
+%    \begin{macrocode}
+
+\if@useocg
+ \if@usetcolorbox
+
+  \RequirePackage{tcolorbox}
+  
+  \newcommand{\XCP@tooltipbox}[3]{%
+    \begin{tcolorbox}[colframe=#1, colback=#2,%
+        width=1.02\columnwidth, arc=2pt,%
+        boxsep=2pt, top=0ex, bottom=0ex, left=0.1em, right=0.1em%
+      ]\normalfont\small #3\end{tcolorbox}%
+  }
+
+ \else
+
+  \newcommand{\XCP@tooltipbox}[3]{%
+    \fcolorbox{#1}{#2}%
+      {\parbox[t]{\columnwidth}{\normalfont\small #3}}%
+  }
+
+ \fi
+\fi
+
+%    \end{macrocode}
+% \end{macro}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \begin{macro}{\XCP@ocgtooltip}
 %
 % Usage: |\XCP@ocgtooltip{<link text>}[<tooltip box color>]{<tooltip text>}|
 %
-% Warning: Requires pdfbase and ocgbase >= 2018/04/06
+% \noindent Warning: Requires pdfbase and ocgbase $>=$ 2018/04/06
 %
 %    \begin{macrocode}
 
@@ -412,35 +448,15 @@ End of documentation driver file.
 
 % Patch hyperref (make the PDF annotations OCG-aware)
 
-\let\Hy@setpdfborderOrig\Hy@setpdfborder
-\def\Hy@setpdfborder{\ocgbase@insert@oc\Hy@setpdfborderOrig}%
+\ifx\Hy@setpdfborder\undefined\else
+  \let\Hy@setpdfborderOrig\Hy@setpdfborder
+  \def\Hy@setpdfborder{\ocgbase@insert@oc\Hy@setpdfborderOrig}%
+\fi
 
-% Define savebox, counters and lengths
-
-\newsavebox{\XCP@tipText}
-
-\newcounter{XCP@tipn}
-
+\newsavebox{\XCP@tipText} % Temporary savebox
 \newlength{\XCP@hOffset} \setlength\XCP@hOffset{-0.1em}
 \newlength{\XCP@vOffset} \setlength\XCP@vOffset{0.2ex}
 \newlength{\XCP@lineGoal}
-
-% Command for showing tooltips. The arguments are the same as for \fcolorbox.
-
-\if@usetcolorbox%
-  \RequirePackage{tcolorbox}
-  \newcommand{\ocgtoolbox}[3]{%
-    \begin{tcolorbox}[colframe=#1, colback=#2,%
-        width=1.02\columnwidth, arc=2pt,%
-        boxsep=2pt, top=0ex, bottom=0ex, left=0.1em, right=0.1em%
-      ]\normalfont\small #3\end{tcolorbox}%
-  }
-\else%
-  \newcommand{\ocgtoolbox}[3]{%
-    \fcolorbox{#1}{#2}%
-      {\parbox[t]{\columnwidth}{\normalfont\small #3}}%
-  }
-\fi
 
 \NewDocumentCommand{\XCP@ocgtooltip}{%
   m % link text
@@ -449,7 +465,6 @@ End of documentation driver file.
 }{{%
   \leavevmode%
   % Create a new PDF layer
-  \stepcounter{XCP@tipn}%
   \ocgbase@new@ocg{ref [\XCP@keys]}{%
     /Print<</PrintState/OFF>> %
     /Export<</ExportState/OFF>> %
@@ -471,7 +486,7 @@ End of documentation driver file.
   \sbox\XCP@tipText{%
     \ocgbase@oc@bdc{\XCP@currentOcg}%
     \ocgbase@open@stack@push{\XCP@currentOcg}%
-      \ocgtoolbox{black!50}{#2}{#3}%
+      \XCP@tooltipbox{black!50}{#2}{#3}%
     \ocgbase@oc@emc%
     \ocgbase@open@stack@pop%
     \null%
@@ -493,12 +508,12 @@ End of documentation driver file.
 %    \end{macrocode}
 % \end{macro}
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \begin{macro}{\XCP@enumeratetips}
 %
-% The macro |\XCP@enumeratetips| gets \texttt{bibentry} for each key from 
-% the list of citations. The output is stored into |\XCP@tips|, which can
-% be directly used as a tooltip text in |\pdftooltip|.
+% Gets \texttt{bibentry} for each key from the list of citations. 
+% The output is stored into |\XCP@tips|, which can be directly used as 
+% a tooltip text in |\pdftooltip|.
 %
 %    \begin{macrocode}
 
@@ -536,10 +551,10 @@ End of documentation driver file.
 %    \end{macrocode}
 % \end{macro}
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \begin{macro}{\xcsetauthor}
 %
-% This commands sets the author used for pdf comments (default: {}).
+% Set the author used for pdf comments (default: {}).
 %
 %    \begin{macrocode}
 
@@ -549,10 +564,10 @@ End of documentation driver file.
 %    \end{macrocode}
 % \end{macro}
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \begin{macro}{\xcsetmarkup}
 %
-% This commands sets the markup used for pdf comments (default: Underline).
+% Set the markup used for pdf comments (default: Underline).
 %
 %    \begin{macrocode}
 
@@ -562,10 +577,10 @@ End of documentation driver file.
 %    \end{macrocode}
 % \end{macro}
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \begin{macro}{\xcsetcolor}
 %
-% This commands sets the color used for pdf comments (default: yellow).
+% Set the color used for pdf comments (default: yellow).
 %
 %    \begin{macrocode}
 
@@ -575,10 +590,10 @@ End of documentation driver file.
 %    \end{macrocode}
 % \end{macro}
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \begin{macro}{\XCP@opt@opacity}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{macro}{\xcsetopacity}
 %
-% This commands sets the opacity used for pdf comments (default: 0).
+% Set the opacity used for pdf comments (default: 0).
 %
 %    \begin{macrocode}
 
@@ -588,7 +603,7 @@ End of documentation driver file.
 %    \end{macrocode}
 % \end{macro}
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \begin{macro}{\XCP@citetp}
 %
 % This macro is in fact |\xpdfcite|. \\
@@ -598,35 +613,21 @@ End of documentation driver file.
 
 \newcommand\XCP@citetp{\@ifnextchar[{\XCP@@citetp}{\XCP@@citetp[]}}
 
-%    \end{macrocode}
-% \end{macro}
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \begin{macro}{\XCP@@citetp}
-%
-% This macro is called from |\xpdfcite|. \\
-% It is a wrapper for |\XCP@citex| to handle variable number of arguments.
-%
-%    \begin{macrocode}
-
 \newcommand\XCP@@citetp{}
-
 \def\XCP@@citetp[#1]{\@ifnextchar[{\XCP@citex[#1]}{\XCP@citex[][#1]}}
 
 %    \end{macrocode}
 % \end{macro}
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \begin{macro}{\XCP@citex}
 %
-% This is an internal macro that does the job of |\xpdfcite|.
-% It combines |\citep| with |\pdftooltip| and |\pdfmarkupcomment|. 
+% An internal macro that does the actual job for |\xpdfcite|.
 %
 %    \begin{macrocode}
 
 \newcommand\XCP@citex{}
-
-\def\XCP@citex[#1][#2]#3%
+\gdef\XCP@citex[#1][#2]#3%
   {%{\protect\NoHyper%
     \if@useocg%
       \let\textCR\par%
@@ -651,10 +652,10 @@ End of documentation driver file.
 %    \end{macrocode}
 % \end{macro}
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \begin{macro}{\xpdfcite}
 %
-% A wrapper for the combined |\pdftooltip| and |\citep|.\\
+% A wrapper for |\citep| + |\pdftooltip|.
 % It has the same syntax as |\citep|.
 %
 %    \begin{macrocode}
@@ -666,11 +667,11 @@ End of documentation driver file.
 
 \if@redefcite % Override \cite
   \let\cite\xpdfcite  
-  \robustify{\cite} % Required for \cite in captions
+  \robustify{\cite} % Required for, e.g., captions
 \fi
 
 %    \end{macrocode}
 % \end{macro}
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \Finale

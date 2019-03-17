@@ -40,7 +40,7 @@
 \RequirePackage{pdfcomment}
 \RequirePackage{xparse}
 \RequirePackage{etoolbox}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newif\if@useocg\@useocgfalse
 \newif\if@usetcolorbox\@usetcolorboxfalse
@@ -52,7 +52,31 @@
 
 \ProcessOptions\relax
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\if@useocg
+ \if@usetcolorbox
+
+  \RequirePackage{tcolorbox}
+
+  \newcommand{\XCP@tooltipbox}[3]{%
+    \begin{tcolorbox}[colframe=#1, colback=#2,%
+        width=1.02\columnwidth, arc=2pt,%
+        boxsep=2pt, top=0ex, bottom=0ex, left=0.1em, right=0.1em%
+      ]\normalfont\small #3\end{tcolorbox}%
+  }
+
+ \else
+
+  \newcommand{\XCP@tooltipbox}[3]{%
+    \fcolorbox{#1}{#2}%
+      {\parbox[t]{\columnwidth}{\normalfont\small #3}}%
+  }
+
+ \fi
+\fi
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \if@useocg %%% BEGIN use OCG %%%
 
@@ -85,33 +109,15 @@
 \ExplSyntaxOff
 
 
-\let\Hy@setpdfborderOrig\Hy@setpdfborder
-\def\Hy@setpdfborder{\ocgbase@insert@oc\Hy@setpdfborderOrig}%
+\ifx\Hy@setpdfborder\undefined\else
+  \let\Hy@setpdfborderOrig\Hy@setpdfborder
+  \def\Hy@setpdfborder{\ocgbase@insert@oc\Hy@setpdfborderOrig}%
+\fi
 
-
-\newsavebox{\XCP@tipText}
-
-\newcounter{XCP@tipn}
-
+\newsavebox{\XCP@tipText} % Temporary savebox
 \newlength{\XCP@hOffset} \setlength\XCP@hOffset{-0.1em}
 \newlength{\XCP@vOffset} \setlength\XCP@vOffset{0.2ex}
 \newlength{\XCP@lineGoal}
-
-
-\if@usetcolorbox%
-  \RequirePackage{tcolorbox}
-  \newcommand{\ocgtoolbox}[3]{%
-    \begin{tcolorbox}[colframe=#1, colback=#2,%
-        width=1.02\columnwidth, arc=2pt,%
-        boxsep=2pt, top=0ex, bottom=0ex, left=0.1em, right=0.1em%
-      ]\normalfont\small #3\end{tcolorbox}%
-  }
-\else%
-  \newcommand{\ocgtoolbox}[3]{%
-    \fcolorbox{#1}{#2}%
-      {\parbox[t]{\columnwidth}{\normalfont\small #3}}%
-  }
-\fi
 
 \NewDocumentCommand{\XCP@ocgtooltip}{%
   m % link text
@@ -120,7 +126,6 @@
 }{{%
   \leavevmode%
   % Create a new PDF layer
-  \stepcounter{XCP@tipn}%
   \ocgbase@new@ocg{ref [\XCP@keys]}{%
     /Print<</PrintState/OFF>> %
     /Export<</ExportState/OFF>> %
@@ -142,7 +147,7 @@
   \sbox\XCP@tipText{%
     \ocgbase@oc@bdc{\XCP@currentOcg}%
     \ocgbase@open@stack@push{\XCP@currentOcg}%
-      \ocgtoolbox{black!50}{#2}{#3}%
+      \XCP@tooltipbox{black!50}{#2}{#3}%
     \ocgbase@oc@emc%
     \ocgbase@open@stack@pop%
     \null%
@@ -161,7 +166,7 @@
 
 \fi %%% END use OCG %%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newsavebox{\XCP@keynum} % Temp box for getting citation numbers using \citenum
 
@@ -194,41 +199,37 @@
 
 \ExplSyntaxOff
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \gdef\XCP@opt@author{{}}
 \newcommand{\xcsetauthor}[1]{\gdef\XCP@opt@author{#1}}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \gdef\XCP@opt@markup{Underline}
 \newcommand{\xcsetmarkup}[1]{\gdef\XCP@opt@markup{#1}}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \gdef\XCP@opt@color{1 1 0}
 \newcommand{\xcsetcolor}[1]{\gdef\XCP@opt@color{#1}}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \gdef\XCP@opt@opacity{0}
 \newcommand{\xcsetopacity}[1]{\gdef\XCP@opt@opacity{#1}}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newcommand\XCP@citetp{\@ifnextchar[{\XCP@@citetp}{\XCP@@citetp[]}}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \newcommand\XCP@@citetp{}
-
 \def\XCP@@citetp[#1]{\@ifnextchar[{\XCP@citex[#1]}{\XCP@citex[][#1]}}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newcommand\XCP@citex{}
-
-\def\XCP@citex[#1][#2]#3%
+\gdef\XCP@citex[#1][#2]#3%
   {%{\protect\NoHyper%
     \if@useocg%
       \let\textCR\par%
@@ -250,7 +251,7 @@
 
 \let\XCP@oldcite\citep  % Save \citep (in the case if it becomes redefined)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \let\xpdfcite\XCP@citetp
 \robustify{\xpdfcite}
@@ -259,10 +260,10 @@
 
 \if@redefcite % Override \cite
   \let\cite\xpdfcite
-  \robustify{\cite} % Required for \cite in captions
+  \robustify{\cite} % Required for, e.g., captions
 \fi
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 
 %% <<<<< End of generated file <<<<<<
 %% 
