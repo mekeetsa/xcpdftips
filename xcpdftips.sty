@@ -34,38 +34,160 @@
 \NeedsTeXFormat{LaTeX2e}
 
 \ProvidesPackage{xcpdftips}
-[2019/03/10 xcpdftips.sty v1.0 - (c) 2019 Mikica Kocic]
+[2019/03/18 xcpdftips.sty v1.1 - (c) 2019 Mikica Kocic]
 
 \RequirePackage{bibentry}
 \RequirePackage{pdfcomment}
 \RequirePackage{xparse}
 \RequirePackage{etoolbox}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newif\if@useocg\@useocgfalse
+\newif\if@usetcolorbox\@usetcolorboxfalse
+\newif\if@redefcite\@redefcitefalse
+
+\DeclareOption{useocg}{\@useocgtrue}
+\DeclareOption{usetcolorbox}{\@usetcolorboxtrue}
+\DeclareOption{redefcite}{\@redefcitetrue}
+
+\ProcessOptions\relax
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\newsavebox{\XC@keynum} % Temp box for getting key numbers using \citenum{}
+\if@useocg %%% BEGIN use OCG %%%
+
+\RequirePackage{pdfbase,ocgbase}
+
+\RequirePackage{xparse}
+\RequirePackage{expl3}
+\RequirePackage{calc,linegoal}
+\RequirePackage{xcolor}
+
 
 \ExplSyntaxOn
 
-\NewDocumentCommand{ \XC@enumeratetips }%
+\msg_set:nnnn{xcpdftips}{support~outdated}{
+  Support~package~`#1'~too~old.
+}{
+  Get~an~up~to~date~version~of~`#1'.\\Aborting.
+}
+\@ifpackagelater{pdfbase}{2018/04/06}{}{
+  \msg_error:nnn{xcpdftips}{support~outdated}{pdfbase.sty}
+  \tex_endinput:D
+}
+\@ifpackagelater{ocgbase}{2018/04/06}{}{
+  \msg_error:nnn{xcpdftips}{support~outdated}{ocgbase.sty}
+  \tex_endinput:D
+}
+
+\let\XCP@pdfLink\pbs_pdflink:nn  % Alias for the pdflink from pdfbase
+
+\ExplSyntaxOff
+
+
+\let\Hy@setpdfborderOrig\Hy@setpdfborder
+\def\Hy@setpdfborder{\ocgbase@insert@oc\Hy@setpdfborderOrig}%
+
+
+\newsavebox{\XCP@tipText}
+
+\newcounter{XCP@tipn}
+
+\newlength{\XCP@hOffset} \setlength\XCP@hOffset{-0.1em}
+\newlength{\XCP@vOffset} \setlength\XCP@vOffset{0.2ex}
+\newlength{\XCP@lineGoal}
+
+
+\if@usetcolorbox%
+  \RequirePackage{tcolorbox}
+  \newcommand{\ocgtoolbox}[3]{%
+    \begin{tcolorbox}[colframe=#1, colback=#2,%
+        width=1.02\columnwidth, arc=2pt,%
+        boxsep=2pt, top=0ex, bottom=0ex, left=0.1em, right=0.1em%
+      ]\normalfont\small #3\end{tcolorbox}%
+  }
+\else%
+  \newcommand{\ocgtoolbox}[3]{%
+    \fcolorbox{#1}{#2}%
+      {\parbox[t]{\columnwidth}{\normalfont\small #3}}%
+  }
+\fi
+
+\NewDocumentCommand{\XCP@ocgtooltip}{%
+  m % link text
+  O{yellow!5} % tooltip box color
+  m % tooltip text
+}{{%
+  \leavevmode%
+  % Create a new PDF layer
+  \stepcounter{XCP@tipn}%
+  \ocgbase@new@ocg{ref [\XCP@keys]}{%
+    /Print<</PrintState/OFF>> %
+    /Export<</ExportState/OFF>> %
+    /View<</ViewState/OFF>> %
+  }{invisible}%
+  \edef\XCP@currentOcg{\ocgbase@last@ocg}%
+  % Insert the PDF layer into the order hierarchy (shown in the 'Layers' tab)
+  \ocgbase@tree@node@begin%
+  \XCP@currentOcg%
+  \ocgbase@tree@node@end%
+  % Disable the simultaneous visibility of multiple tooltips
+  \ocgbase@add@ocg@to@radiobtn@grp{tool@tips}{\ocgbase@last@ocg}%
+  % Emit the <link text> using \pbs_pdflink:nn
+  \XCP@pdfLink{%
+    /Subtype/Link/Border[0 0 0]/A %
+      <</S/SetOCGState/State [/Toggle \XCP@currentOcg]>> %
+  }{#1}%
+  % Create a savebox for the <tooltip text> on the PDF layer
+  \sbox\XCP@tipText{%
+    \ocgbase@oc@bdc{\XCP@currentOcg}%
+    \ocgbase@open@stack@push{\XCP@currentOcg}%
+      \ocgtoolbox{black!50}{#2}{#3}%
+    \ocgbase@oc@emc%
+    \ocgbase@open@stack@pop%
+    \null%
+  }%
+  % Emit the savebox (at this point we have dimensions to calc the offset)
+  \raisebox{%
+    \heightof{#1} + \the\dp\XCP@tipText + \XCP@vOffset%
+  }[0pt][0pt]{%
+    \makebox[0pt][l]{\relax%
+      \setlength\XCP@lineGoal{\linegoal}%
+      \hspace{\dimexpr\XCP@lineGoal - \linewidth + \XCP@hOffset \relax}%
+      \usebox{\XCP@tipText}%
+    }%
+  }%
+}}
+
+\fi %%% END use OCG %%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newsavebox{\XCP@keynum} % Temp box for getting citation numbers using \citenum
+
+\ExplSyntaxOn
+
+\NewDocumentCommand{ \XCP@enumeratetips }%
 { > { \SplitList , } m }%
 {%
-  \global\undef\XC@tips%
-  \global\undef\XC@keys%
+  \global\undef\XCP@tips%
+  \global\undef\XCP@keys%
   \tl_map_inline:nn {#1}%
   {%
-    \ifx\XC@tips\undefined%
-      \global\def\XC@keys{}%
-      \sbox\XC@keynum{\citenum{##1}}%
-      \expandafter\xdef\csname XC@k@##1\@extra@b@citeb\endcsname{\NAT@num}%
-      \xappto{\XC@keys}{\NAT@num}%
-      \global\def\XC@tips{}%
-      \gappto{\XC@tips}{[\textbf{\@nameuse{XC@k@##1\@extra@b@citeb}}]\ {\@nameuse{BR@r@##1\@extra@b@citeb}}}%
+    \ifx\XCP@tips\undefined%
+      \global\def\XCP@keys{}%
+      \sbox\XCP@keynum{\citenum{##1}}%
+      \expandafter\xdef\csname XCP@k@##1\endcsname{\NAT@num}%
+      \xappto{\XCP@keys}{\NAT@num}%
+      \global\def\XCP@tips{}%
+      \gappto{\XCP@tips}{[\textbf{\@nameuse{XCP@k@##1}}]\ %
+        {\@nameuse{BR@r@##1\@extra@b@citeb}}}%
     \else%
-      \sbox\XC@keynum{\citenum{##1}}%
-      \expandafter\xdef\csname XC@k@##1\@extra@b@citeb\endcsname{\NAT@num}%
-      \xappto{\XC@keys}{,\NAT@num}%
-      \gappto{\XC@tips}{,\textCR[\textbf{\@nameuse{XC@k@##1\@extra@b@citeb}}]\ {\@nameuse{BR@r@##1\@extra@b@citeb}}}%
+      \sbox\XCP@keynum{\citenum{##1}}%
+      \expandafter\xdef\csname XCP@k@##1\@extra@b@citeb\endcsname{\NAT@num}%
+      \xappto{\XCP@keys}{,\NAT@num}%
+      \gappto{\XCP@tips}{,\textCR[\textbf{\@nameuse{XCP@k@##1}}]\ %
+        {\@nameuse{BR@r@##1\@extra@b@citeb}}}%
     \fi%
   }%
 }
@@ -74,66 +196,71 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\gdef\XC@opt@author{{}}
-\newcommand{\xcsetauthor}[1]{\gdef\XC@opt@author{#1}}
+\gdef\XCP@opt@author{{}}
+\newcommand{\xcsetauthor}[1]{\gdef\XCP@opt@author{#1}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\gdef\XC@opt@markup{Underline}
-\newcommand{\xcsetmarkup}[1]{\gdef\XC@opt@markup{#1}}
+\gdef\XCP@opt@markup{Underline}
+\newcommand{\xcsetmarkup}[1]{\gdef\XCP@opt@markup{#1}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\gdef\XC@opt@color{1 1 0}
-\newcommand{\xcsetcolor}[1]{\gdef\XC@opt@color{#1}}
+\gdef\XCP@opt@color{1 1 0}
+\newcommand{\xcsetcolor}[1]{\gdef\XCP@opt@color{#1}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\gdef\XC@opt@opacity{0}
-\newcommand{\xcsetopacity}[1]{\gdef\XC@opt@opacity{#1}}
+\gdef\XCP@opt@opacity{0}
+\newcommand{\xcsetopacity}[1]{\gdef\XCP@opt@opacity{#1}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\newcommand\XC@citetp{\@ifnextchar[{\XC@@citetp}{\XC@@citetp[]}}
+\newcommand\XCP@citetp{\@ifnextchar[{\XCP@@citetp}{\XCP@@citetp[]}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\newcommand\XC@@citetp{}
+\newcommand\XCP@@citetp{}
 
-\def\XC@@citetp[#1]{\@ifnextchar[{\XC@citex[#1]}{\XC@citex[][#1]}}
+\def\XCP@@citetp[#1]{\@ifnextchar[{\XCP@citex[#1]}{\XCP@citex[][#1]}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\newcommand\XC@citex{}
+\newcommand\XCP@citex{}
 
-\def\XC@citex[#1][#2]#3%
+\def\XCP@citex[#1][#2]#3%
   {%{\protect\NoHyper%
-    \ifx\ocgtooltip\undefined%
-      \XC@enumeratetips{#3}%
-      \pdftooltip{\XC@oldcite[#1][#2]{#3}}{\XC@tips}%
-      \pdfmarkupcomment[%
-        author=\XC@opt@author,%
-        markup=\XC@opt@markup,%
-        color=\XC@opt@color,%
-        opacity=\XC@opt@opacity,%
-      ]{\vphantom{.}}{\XC@tips}%
-    \else%
+    \if@useocg%
       \let\textCR\par%
-      \XC@enumeratetips{#3}%
-      \ocgtooltip%
-        {{{\protect\NoHyper\XC@oldcite[#1][#2]{#3}\protect\endNoHyper}}}%
-        {\XC@tips}%
+      \XCP@enumeratetips{#3}%
+      \XCP@ocgtooltip%
+        {{{\protect\NoHyper\XCP@oldcite[#1][#2]{#3}\protect\endNoHyper}}}%
+        {\XCP@tips}%
+    \else%
+      \XCP@enumeratetips{#3}%
+      \pdftooltip{\XCP@oldcite[#1][#2]{#3}}{\XCP@tips}%
+      \pdfmarkupcomment[%
+        author=\XCP@opt@author,%
+        markup=\XCP@opt@markup,%
+        color=\XCP@opt@color,%
+        opacity=\XCP@opt@opacity,%
+      ]{\vphantom{.}}{\XCP@tips}%
     \fi%
   }%\protect\endNoHyper}}
 
-\let\XC@oldcite\citep  % Save \citep (in the case if it becomes redefined)
+\let\XCP@oldcite\citep  % Save \citep (in the case if it becomes redefined)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\let\xpdfcite\XC@citetp
+\let\xpdfcite\XCP@citetp
 \robustify{\xpdfcite}
 
 \AtBeginDocument{\nobibliography*} % Necessary to get bibentries.
+
+\if@redefcite % Override \cite
+  \let\cite\xpdfcite
+  \robustify{\cite} % Required for \cite in captions
+\fi
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 
