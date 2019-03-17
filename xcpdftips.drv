@@ -41,48 +41,39 @@
    \DocInput{xcpdftips.dtx}
 \end{document}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newif\ifXCP@redefcite\XCP@redefcitefalse
+\newif\ifXCP@useocg\XCP@useocgfalse
+\newif\ifXCP@usetcolorbox\XCP@usetcolorboxfalse
 
-\newif\if@useocg\@useocgfalse
-\newif\if@usetcolorbox\@usetcolorboxfalse
-\newif\if@redefcite\@redefcitefalse
-
-\DeclareOption{useocg}{\@useocgtrue}
-\DeclareOption{usetcolorbox}{\@usetcolorboxtrue}
-\DeclareOption{redefcite}{\@redefcitetrue}
+\DeclareOption{redefcite}{\XCP@redefcitetrue}
+\DeclareOption{ocg}{\XCP@useocgtrue}
+\DeclareOption{tcolorbox}{\XCP@usetcolorboxtrue}
 
 \ProcessOptions\relax
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\if@useocg
- \if@usetcolorbox
-
-  \RequirePackage{tcolorbox}
-
+\ifXCP@useocg
+ \ifXCP@usetcolorbox
+  \ifx\tcolorbox\undefined
+    \RequirePackage{tcolorbox}
+  \fi
   \newcommand{\XCP@tooltipbox}[3]{%
     \begin{tcolorbox}[colframe=#1, colback=#2,%
         width=1.02\columnwidth, arc=2pt,%
         boxsep=2pt, top=0ex, bottom=0ex, left=0.1em, right=0.1em%
       ]\normalfont\small #3\end{tcolorbox}%
   }
-
  \else
-
   \newcommand{\XCP@tooltipbox}[3]{%
     \fcolorbox{#1}{#2}%
       {\parbox[t]{\columnwidth}{\normalfont\small #3}}%
   }
-
  \fi
 \fi
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\if@useocg %%% BEGIN use OCG %%%
+\ifXCP@useocg
 
 \RequirePackage{pdfbase,ocgbase}
 
-\RequirePackage{xparse}
 \RequirePackage{expl3}
 \RequirePackage{calc,linegoal}
 \RequirePackage{xcolor}
@@ -164,10 +155,8 @@
   }%
 }}
 
-\fi %%% END use OCG %%%
-
+\fi%XCP@useocg
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \newsavebox{\XCP@keynum} % Temp box for getting citation numbers using \citenum
 
 \ExplSyntaxOn
@@ -198,40 +187,28 @@
 }
 
 \ExplSyntaxOff
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \gdef\XCP@opt@author{{}}
 \newcommand{\xcsetauthor}[1]{\gdef\XCP@opt@author{#1}}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \gdef\XCP@opt@markup{Underline}
 \newcommand{\xcsetmarkup}[1]{\gdef\XCP@opt@markup{#1}}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \gdef\XCP@opt@color{1 1 0}
 \newcommand{\xcsetcolor}[1]{\gdef\XCP@opt@color{#1}}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \gdef\XCP@opt@opacity{0}
 \newcommand{\xcsetopacity}[1]{\gdef\XCP@opt@opacity{#1}}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \newcommand\XCP@citetp{\@ifnextchar[{\XCP@@citetp}{\XCP@@citetp[]}}
 
 \newcommand\XCP@@citetp{}
 \def\XCP@@citetp[#1]{\@ifnextchar[{\XCP@citex[#1]}{\XCP@citex[][#1]}}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \newcommand\XCP@citex{}
 \gdef\XCP@citex[#1][#2]#3%
   {%{\protect\NoHyper%
-    \if@useocg%
+    \ifXCP@useocg%
       \let\textCR\par%
       \XCP@enumeratetips{#3}%
       \XCP@ocgtooltip%
@@ -250,19 +227,16 @@
   }%\protect\endNoHyper}}
 
 \let\XCP@oldcite\citep  % Save \citep (in the case if it becomes redefined)
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \let\xpdfcite\XCP@citetp
 \robustify{\xpdfcite}
 
 \AtBeginDocument{\nobibliography*} % Necessary to get bibentries.
 
-\if@redefcite % Override \cite
+\ifXCP@redefcite % Override \cite
   \let\cite\xpdfcite
   \robustify{\cite} % Required for, e.g., captions
 \fi
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 
 %% End of documentation driver file.
