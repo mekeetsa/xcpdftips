@@ -178,10 +178,10 @@
         {\@nameuse{BR@r@##1\@extra@b@citeb}}}%
     \else%
       \sbox\XCP@keynum{\citenum{##1}}%
-      \expandafter\xdef\csname XCP@k@##1\@extra@b@citeb\endcsname{\NAT@num}%
+      \expandafter\xdef\csname XCP@k@##1\endcsname{\NAT@num}%
       \xappto{\XCP@keys}{,\NAT@num}%
       \gappto{\XCP@tips}{,\textCR[\textbf{\@nameuse{XCP@k@##1}}]\ %
-        {\@nameuse{BR@r@##1\@extra@b@citeb}}}%
+        {\@nameuse{BR@r@##1}}}%
     \fi%
   }%
 }

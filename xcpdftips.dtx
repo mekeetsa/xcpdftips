@@ -58,7 +58,7 @@
 % \changes{1.0}{2019 Mar 10}{Initial version}
 % \changes{1.1}{2019 Mar 18}{Added support for PDF OCG}
 %
-% \CheckSum{282}
+% \CheckSum{280}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -523,10 +523,10 @@ End of documentation driver file.
         {\@nameuse{BR@r@##1\@extra@b@citeb}}}%
     \else%
       \sbox\XCP@keynum{\citenum{##1}}%
-      \expandafter\xdef\csname XCP@k@##1\@extra@b@citeb\endcsname{\NAT@num}%
+      \expandafter\xdef\csname XCP@k@##1\endcsname{\NAT@num}%
       \xappto{\XCP@keys}{,\NAT@num}%
       \gappto{\XCP@tips}{,\textCR[\textbf{\@nameuse{XCP@k@##1}}]\ %
-        {\@nameuse{BR@r@##1\@extra@b@citeb}}}%
+        {\@nameuse{BR@r@##1}}}%
     \fi%
   }%
 }
