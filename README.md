@@ -41,8 +41,9 @@ by LaTeXing it.
 
 ## List of changes
 
-v1.0 2019/03/10 Initial release
-v1.1 2019/03/10 Added support for tooltips on PDF layers (using OCG)
+- v1.0 2019/03/10 Initial release
+- v1.1 2019/03/10 Added support for tooltips on PDF layers (using OCG)
+- v1.2 (ongoing) Added various options
 
 ## License
 

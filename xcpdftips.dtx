@@ -58,7 +58,7 @@
 % \changes{1.0}{2019 Mar 10}{Initial version}
 % \changes{1.1}{2019 Mar 18}{Added support for PDF OCG}
 %
-% \CheckSum{280}
+% \CheckSum{282}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -282,7 +282,7 @@ End of documentation driver file.
 % \end{quote}
 % where \oarg{options} is one of: |redefcite|, |ocg|, or |tcolorbox|.
 %
-% The option |redefcite| replaces |natbib|'s |\cite| with |\xcpdfcite|.
+% The option |redefcite| replaces |natbib|'s |\cite| with |\xpdfcite|.
 %
 % The option |ocg| puts tooltips on PDF layers using OCG.
 %
@@ -495,6 +495,18 @@ End of documentation driver file.
 % \end{macro}
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{macro}{\xcpmarkitem}
+%
+% Markup the citation number in a tooltip. 
+% Accepts one argument, the citation number. 
+% Default, surround the citation number with [].
+%
+%    \begin{macrocode}
+\newcommand{\xcpmarkitem}[1]{[#1]}
+%    \end{macrocode}
+% \end{macro}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \begin{macro}{\XCP@enumeratetips}
 %
 % Gets \texttt{bibentry} for each key from the list of citations. 
@@ -519,13 +531,13 @@ End of documentation driver file.
       \expandafter\xdef\csname XCP@k@##1\endcsname{\NAT@num}%
       \xappto{\XCP@keys}{\NAT@num}%
       \global\def\XCP@tips{}%
-      \gappto{\XCP@tips}{[\textbf{\@nameuse{XCP@k@##1}}]\ %
+      \gappto{\XCP@tips}{\xcpmarkitem{\@nameuse{XCP@k@##1}}\ %
         {\@nameuse{BR@r@##1\@extra@b@citeb}}}%
     \else%
       \sbox\XCP@keynum{\citenum{##1}}%
       \expandafter\xdef\csname XCP@k@##1\endcsname{\NAT@num}%
       \xappto{\XCP@keys}{,\NAT@num}%
-      \gappto{\XCP@tips}{,\textCR[\textbf{\@nameuse{XCP@k@##1}}]\ %
+      \gappto{\XCP@tips}{,\textCR\xcpmarkitem{\@nameuse{XCP@k@##1}}\ %
         {\@nameuse{BR@r@##1}}}%
     \fi%
   }%

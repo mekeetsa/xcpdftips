@@ -1,10 +1,13 @@
 %\documentclass[11pt,a4paper]{article}
 \documentclass[11pt,a4paper,twocolumn]{article}
+%\documentclass[final,5p,times,twocolumn]{elsarticle}
 \pdfoutput=1
 
 \usepackage{float}
 
-\usepackage[numbers,sort&compress]{natbib}
+\ifx\Citep\undefined
+  \usepackage[numbers,sort&compress]{natbib}
+\fi
 
 \usepackage[colorlinks=true
   ,urlcolor=blue,anchorcolor=blue,citecolor=blue,filecolor=blue
@@ -33,10 +36,12 @@ To test, hover with your mouse pointer over the brackets:
     \cite{Weinberg:1995mt}
   \item Test 2: 
     \cite{York:1972sj,Gibbons:1976ue,Hawking:1995fd}
+  \renewcommand{\xcpmarkitem}[1]{[\textbf{#1}]}
   \item Test 3: 
     \cite[post]{Misner:1974qy,Wigner:1939cj,Hawking:1995fd}
   \item Test 4: 
     \cite[pre][post]{Schmidt-May:2015vnx,Hinterbichler:2011tt,deRham:2014zqa}
+  \renewcommand{\xcpmarkitem}[1]{\textbullet}
   \item Test 5: 
     \cite[pre][]{Rosen:1975kk,Isham:1971gm}
 \end{itemize}
